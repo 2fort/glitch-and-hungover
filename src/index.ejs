@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html prefix="og: http://ogp.me/ns#">
+  <head>
+    <meta charset="utf-8">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <meta property="og:title" content="Глюк &amp; Отходняк" />
+    <meta property="og:type" content="website" />
+    <meta property="og:description" content="Сайт о комиксе 'Глюк и Отходняк', автор - А. Нимов" />
+    <!-- <meta property="og:url" content="<%= htmlWebpackPlugin.options.baseurl %>" /> -->
+    <meta property="og:image" content="/img/o/glitch.png" />
+    <meta name="viewport" content="initial-scale=1.0,width=device-width">
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rwoIResjU2yc3z8GV/NPeZWAv56rSmLldC3R/AZzGRnGxQQKnKkoFVhFQhNUwEyJ" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <style>
+      .footer {
+        padding: 1.5rem 0 2rem;
+      }
+      .loading {
+        padding: 1.5rem;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <nav class="navbar navbar-inverse bg-inverse">
+      <span class="navbar-brand align-self-center" href="/">Глюк &amp; Отходняк</span>
+    </nav>
+    <div id="app">
+      <div class="loading">
+        <i class="fa fa-spinner fa-spin fa-3x fa-fw"></i>
+      </div>
+    </div>
+    <div class="bg-inverse text-white footer">
+      <div class="container">
+        Сайт создан в 2017 году<br>
+        <i class="fa fa-github" aria-hidden="true"></i> <a class="text-info" href="https://github.com/2fort">2fort</a>
+      </div>
+    </div>
+    <%=htmlWebpackPlugin.files.webpackManifest%>
+  </body>
+</html>

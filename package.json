@@ -1,0 +1,52 @@
+{
+  "name": "glitch-and-hungover",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Alexander Kirsanov",
+  "license": "MIT",
+  "scripts": {
+    "start": "webpack-dev-server --host 0.0.0.0",
+    "static": "NODE_PATH=. NODE_ENV=production nodemon staticServer.js",
+    "build": "cd build && ls | xargs rm -rf && cd .. && NODE_ENV=production webpack -p --config webpack.prod.config.js",
+    "lint": "eslint \"./tasks/**/*\" \"./src/**/*\"",
+    "img:resize": "NODE_PATH=. node tasks/resizeImg.js"
+  },
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-core": "^6.24.0",
+    "babel-eslint": "^7.2.1",
+    "babel-loader": "^6.4.1",
+    "babel-plugin-transform-react-remove-prop-types": "^0.3.2",
+    "babel-preset-env": "^1.3.2",
+    "babel-preset-react": "^6.23.0",
+    "babel-preset-stage-2": "^6.22.0",
+    "babel-runtime": "^6.23.0",
+    "csstips": "^0.2.0",
+    "csx": "^8.2.1",
+    "eslint": "^3.19.0",
+    "eslint-config-airbnb": "^14.1.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-jsx-a11y": "^4.0.0",
+    "eslint-plugin-react": "^6.10.3",
+    "file-loader": "^0.11.1",
+    "hammerjs": "^2.0.8",
+    "html-webpack-plugin": "^2.28.0",
+    "inline-manifest-webpack-plugin": "^3.0.1",
+    "raw-loader": "^0.5.1",
+    "react": "^15.4.2",
+    "react-dom": "^15.4.2",
+    "react-hot-loader": "^3.0.0-beta.6",
+    "react-redux": "^5.0.3",
+    "redux": "^3.6.0",
+    "typestyle": "^1.3.1",
+    "url-loader": "^0.5.8",
+    "webpack": "^2.3.2",
+    "webpack-dev-server": "^2.4.2"
+  },
+  "devDependencies": {
+    "express": "^4.15.2",
+    "proxy-middleware": "^0.15.0",
+    "sharp": "^0.17.3",
+    "shortid": "^2.2.8"
+  }
+}

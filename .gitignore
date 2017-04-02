@@ -1,0 +1,12 @@
+node_modules
+images
+
+public/img/l/*
+public/img/m/*
+public/img/s/*
+public/img/o/*
+
+!public/img/l/.gitkeep
+!public/img/m/.gitkeep
+!public/img/s/.gitkeep
+!public/img/o/.gitkeep
