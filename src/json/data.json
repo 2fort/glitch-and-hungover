@@ -2,6 +2,7 @@
   "01_january_2000": {
     "title": "Проблема 2000",
     "date": "Январь 2000",
+    "anchor": "problem_2000",
     "files": [
       "SyRyipR3e.jpg",
       "SyxAJipAhx.jpg",
@@ -12,6 +13,7 @@
   "02_february_2000": {
     "title": "Конец Света",
     "date": "Февраль 2000",
+    "anchor": "doomsday",
     "files": [
       "rkmAJsa02x.jpg",
       "ryNCysaAnl.jpg",
@@ -22,6 +24,7 @@
   "03_march_2000": {
     "title": "ENTER",
     "date": "Март 2000",
+    "anchor": "enter",
     "files": [
       "rkwA1sp03e.jpg",
       "BkuRkjpC3x.jpg",
@@ -32,6 +35,7 @@
   "04_april_2000": {
     "title": "DELETE",
     "date": "Апрель 2000",
+    "anchor": "delete",
     "files": [
       "SkjR1oTRhe.jpg",
       "Sy3Cyj6C2l.jpg",
@@ -42,6 +46,7 @@
   "05_may_2000": {
     "title": "Потоп",
     "date": "Май 2000",
+    "anchor": "flood",
     "files": [
       "Bk1e0JoaA3x.jpg",
       "SyeeRJi6R2e.jpg",
@@ -52,6 +57,7 @@
   "06_july_2000": {
     "title": "Дачный сезон",
     "date": "Июль 2000",
+    "anchor": "summer_season",
     "files": [
       "HkXxCJiT03e.jpg",
       "HJNgR1jTR3e.jpg",
@@ -62,6 +68,7 @@
   "07_august_2000": {
     "title": "Капитаны тоже плачут",
     "date": "Август 2000",
+    "anchor": "captains_also_crying",
     "files": [
       "r1DeCJoaRhg.jpg",
       "Sy_lAkiTA3e.jpg",
@@ -72,6 +79,7 @@
   "08_september_2000": {
     "title": "Огонь & Вода",
     "date": "Сентябрь 2000",
+    "anchor": "fire_and_water",
     "files": [
       "rysxAJsa0hl.jpg",
       "HJ3l0kspR2e.jpg",
@@ -82,6 +90,7 @@
   "09_october_2000": {
     "title": "ДТП",
     "date": "Октябрь 2000",
+    "anchor": "accident",
     "files": [
       "HJ1-A1j6Rng.jpg",
       "HkgZAkjTC3x.jpg",
@@ -92,6 +101,7 @@
   "10_november_2000": {
     "title": "Спасение утопающих",
     "date": "Ноябрь 2000",
+    "anchor": "rescue_the_drowning",
     "files": [
       "Hy7ZR1iTA3g.jpg",
       "HkVZAJjpRng.jpg",
@@ -102,6 +112,7 @@
   "11_december_2000": {
     "title": "Зарплата",
     "date": "Декабрь 2000",
+    "anchor": "salary",
     "files": [
       "BJwWRyjpA2e.jpg",
       "HJdWAkspR3l.jpg",
@@ -112,6 +123,7 @@
   "12_january_2001": {
     "title": "Желаю...",
     "date": "Январь 2001",
+    "anchor": "wish",
     "files": [
       "HksbAJs603g.jpg",
       "Hy3-RyoTC3g.jpg",
@@ -122,6 +134,7 @@
   "13_unknown_1": {
     "title": "Погружение в INTERNET",
     "date": "Неизвестно",
+    "anchor": "dive_into_internet",
     "files": [
       "ByJMRyi6R3x.jpg",
       "HygfC1oTCnl.jpg",
@@ -132,6 +145,7 @@
   "14_unknown_2": {
     "title": "Полное погружение",
     "date": "Неизвестно",
+    "anchor": "deep_dive",
     "files": [
       "BJQz01iT03e.jpg",
       "ryEzAJiTC3g.jpg",

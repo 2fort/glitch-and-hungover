@@ -1,7 +1,8 @@
 import { combineReducers, createStore } from 'redux';
+import imageViewer from './components/ImageViewer.duck';
 
 const rootReducer = combineReducers({
-  base: () => ({}),
+  imageViewer,
 });
 
 export default function configureStore() {
