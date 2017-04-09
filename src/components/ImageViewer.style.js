@@ -14,4 +14,11 @@ export const overlay = style({
 export const fullimg = style({
   position: 'absolute',
   visibility: 'hidden',
+  zIndex: 100502,
+});
+
+export const previewimg = style({
+  position: 'absolute',
+  visibility: 'hidden',
+  zIndex: 100501,
 });

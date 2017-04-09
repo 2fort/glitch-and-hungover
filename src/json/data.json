@@ -4,10 +4,26 @@
     "date": "Январь 2000",
     "anchor": "problem_2000",
     "files": [
-      "SyRyipR3e.jpg",
-      "SyxAJipAhx.jpg",
-      "HybCJia03l.jpg",
-      "SkzRkiT02l.jpg"
+      {
+        "small": "Skw514dae_small.jpg",
+        "medium": "Skw514dae_medium.jpg",
+        "large": "Skw514dae_large.jpg"
+      },
+      {
+        "small": "SygPckNd6e_small.jpg",
+        "medium": "SygPckNd6e_medium.jpg",
+        "large": "SygPckNd6e_large.jpg"
+      },
+      {
+        "small": "ry-Dc1Vdae_small.jpg",
+        "medium": "ry-Dc1Vdae_medium.jpg",
+        "large": "ry-Dc1Vdae_large.jpg"
+      },
+      {
+        "small": "rkMD5yV_Tx_small.jpg",
+        "medium": "rkMD5yV_Tx_medium.jpg",
+        "large": "rkMD5yV_Tx_large.jpg"
+      }
     ]
   },
   "02_february_2000": {
@@ -15,10 +31,26 @@
     "date": "Февраль 2000",
     "anchor": "doomsday",
     "files": [
-      "rkmAJsa02x.jpg",
-      "ryNCysaAnl.jpg",
-      "SJBR1spCnx.jpg",
-      "B180ks6A2e.jpg"
+      {
+        "small": "Bk7P9kVuTg_small.jpg",
+        "medium": "Bk7P9kVuTg_medium.jpg",
+        "large": "Bk7P9kVuTg_large.jpg"
+      },
+      {
+        "small": "H1ND9JE_6e_small.jpg",
+        "medium": "H1ND9JE_6e_medium.jpg",
+        "large": "H1ND9JE_6e_large.jpg"
+      },
+      {
+        "small": "SJSD9kV_6g_small.jpg",
+        "medium": "SJSD9kV_6g_medium.jpg",
+        "large": "SJSD9kV_6g_large.jpg"
+      },
+      {
+        "small": "BJ8DqJV_Te_small.jpg",
+        "medium": "BJ8DqJV_Te_medium.jpg",
+        "large": "BJ8DqJV_Te_large.jpg"
+      }
     ]
   },
   "03_march_2000": {
@@ -26,10 +58,26 @@
     "date": "Март 2000",
     "anchor": "enter",
     "files": [
-      "rkwA1sp03e.jpg",
-      "BkuRkjpC3x.jpg",
-      "B1tC1oaRnx.jpg",
-      "rJ5RJo6R2l.jpg"
+      {
+        "small": "SJvwckEu6e_small.jpg",
+        "medium": "SJvwckEu6e_medium.jpg",
+        "large": "SJvwckEu6e_large.jpg"
+      },
+      {
+        "small": "rk_w5J4dpe_small.jpg",
+        "medium": "rk_w5J4dpe_medium.jpg",
+        "large": "rk_w5J4dpe_large.jpg"
+      },
+      {
+        "small": "S1tw5kNOpg_small.jpg",
+        "medium": "S1tw5kNOpg_medium.jpg",
+        "large": "S1tw5kNOpg_large.jpg"
+      },
+      {
+        "small": "rk9w5kVuTe_small.jpg",
+        "medium": "rk9w5kVuTe_medium.jpg",
+        "large": "rk9w5kVuTe_large.jpg"
+      }
     ]
   },
   "04_april_2000": {
@@ -37,10 +85,26 @@
     "date": "Апрель 2000",
     "anchor": "delete",
     "files": [
-      "SkjR1oTRhe.jpg",
-      "Sy3Cyj6C2l.jpg",
-      "HyaC1iT02x.jpg",
-      "r1RAJoT0hx.jpg"
+      {
+        "small": "rJoDqkE_Te_small.jpg",
+        "medium": "rJoDqkE_Te_medium.jpg",
+        "large": "rJoDqkE_Te_large.jpg"
+      },
+      {
+        "small": "SynP9k4dae_small.jpg",
+        "medium": "SynP9k4dae_medium.jpg",
+        "large": "SynP9k4dae_large.jpg"
+      },
+      {
+        "small": "BypD5kNdpx_small.jpg",
+        "medium": "BypD5kNdpx_medium.jpg",
+        "large": "BypD5kNdpx_large.jpg"
+      },
+      {
+        "small": "ByAD5kVuag_small.jpg",
+        "medium": "ByAD5kVuag_medium.jpg",
+        "large": "ByAD5kVuag_large.jpg"
+      }
     ]
   },
   "05_may_2000": {
@@ -48,10 +112,26 @@
     "date": "Май 2000",
     "anchor": "flood",
     "files": [
-      "Bk1e0JoaA3x.jpg",
-      "SyeeRJi6R2e.jpg",
-      "HJZe0ki6A3x.jpg",
-      "rkMxCyj6A3e.jpg"
+      {
+        "small": "SJ1gvqyVd6e_small.jpg",
+        "medium": "SJ1gvqyVd6e_medium.jpg",
+        "large": "SJ1gvqyVd6e_large.jpg"
+      },
+      {
+        "small": "rklgv5kNOal_small.jpg",
+        "medium": "rklgv5kNOal_medium.jpg",
+        "large": "rklgv5kNOal_large.jpg"
+      },
+      {
+        "small": "HyZgw91VOpl_small.jpg",
+        "medium": "HyZgw91VOpl_medium.jpg",
+        "large": "HyZgw91VOpl_large.jpg"
+      },
+      {
+        "small": "BJGewqyEupx_small.jpg",
+        "medium": "BJGewqyEupx_medium.jpg",
+        "large": "BJGewqyEupx_large.jpg"
+      }
     ]
   },
   "06_july_2000": {
@@ -59,10 +139,26 @@
     "date": "Июль 2000",
     "anchor": "summer_season",
     "files": [
-      "HkXxCJiT03e.jpg",
-      "HJNgR1jTR3e.jpg",
-      "B1reA1o6R2x.jpg",
-      "BJ8lCyjpA3l.jpg"
+      {
+        "small": "SyXxvckEdax_small.jpg",
+        "medium": "SyXxvckEdax_medium.jpg",
+        "large": "SyXxvckEdax_large.jpg"
+      },
+      {
+        "small": "SJVxD9kN_6e_small.jpg",
+        "medium": "SJVxD9kN_6e_medium.jpg",
+        "large": "SJVxD9kN_6e_large.jpg"
+      },
+      {
+        "small": "HJSeD9kNO6g_small.jpg",
+        "medium": "HJSeD9kNO6g_medium.jpg",
+        "large": "HJSeD9kNO6g_large.jpg"
+      },
+      {
+        "small": "ryUlD5yNOpl_small.jpg",
+        "medium": "ryUlD5yNOpl_medium.jpg",
+        "large": "ryUlD5yNOpl_large.jpg"
+      }
     ]
   },
   "07_august_2000": {
@@ -70,10 +166,26 @@
     "date": "Август 2000",
     "anchor": "captains_also_crying",
     "files": [
-      "r1DeCJoaRhg.jpg",
-      "Sy_lAkiTA3e.jpg",
-      "rktgCyjaR3g.jpg",
-      "Sy5l0yopRng.jpg"
+      {
+        "small": "HyvgP5kNdal_small.jpg",
+        "medium": "HyvgP5kNdal_medium.jpg",
+        "large": "HyvgP5kNdal_large.jpg"
+      },
+      {
+        "small": "rJ_gD91E_px_small.jpg",
+        "medium": "rJ_gD91E_px_medium.jpg",
+        "large": "rJ_gD91E_px_large.jpg"
+      },
+      {
+        "small": "SkKlw5kNdpg_small.jpg",
+        "medium": "SkKlw5kNdpg_medium.jpg",
+        "large": "SkKlw5kNdpg_large.jpg"
+      },
+      {
+        "small": "S15xDqk4Ope_small.jpg",
+        "medium": "S15xDqk4Ope_medium.jpg",
+        "large": "S15xDqk4Ope_large.jpg"
+      }
     ]
   },
   "08_september_2000": {
@@ -81,10 +193,26 @@
     "date": "Сентябрь 2000",
     "anchor": "fire_and_water",
     "files": [
-      "rysxAJsa0hl.jpg",
-      "HJ3l0kspR2e.jpg",
-      "BkpeA1ip03e.jpg",
-      "r10gCys6C3x.jpg"
+      {
+        "small": "S1d9JNd6l_small.jpg",
+        "medium": "S1d9JNd6l_medium.jpg",
+        "large": "S1d9JNd6l_large.jpg"
+      },
+      {
+        "small": "rJg_51EO6e_small.jpg",
+        "medium": "rJg_51EO6e_medium.jpg",
+        "large": "rJg_51EO6e_large.jpg"
+      },
+      {
+        "small": "BJZO5yN_Tl_small.jpg",
+        "medium": "BJZO5yN_Tl_medium.jpg",
+        "large": "BJZO5yN_Tl_large.jpg"
+      },
+      {
+        "small": "SyM_91VO6x_small.jpg",
+        "medium": "SyM_91VO6x_medium.jpg",
+        "large": "SyM_91VO6x_large.jpg"
+      }
     ]
   },
   "09_october_2000": {
@@ -92,10 +220,26 @@
     "date": "Октябрь 2000",
     "anchor": "accident",
     "files": [
-      "HJ1-A1j6Rng.jpg",
-      "HkgZAkjTC3x.jpg",
-      "B1W-AJoT0nl.jpg",
-      "r1GZCkiT02e.jpg"
+      {
+        "small": "ByXOqJNdpg_small.jpg",
+        "medium": "ByXOqJNdpg_medium.jpg",
+        "large": "ByXOqJNdpg_large.jpg"
+      },
+      {
+        "small": "HyV_91Vdae_small.jpg",
+        "medium": "HyV_91Vdae_medium.jpg",
+        "large": "HyV_91Vdae_large.jpg"
+      },
+      {
+        "small": "BJB_cyVO6l_small.jpg",
+        "medium": "BJB_cyVO6l_medium.jpg",
+        "large": "BJB_cyVO6l_large.jpg"
+      },
+      {
+        "small": "ryLuq1Eupe_small.jpg",
+        "medium": "ryLuq1Eupe_medium.jpg",
+        "large": "ryLuq1Eupe_large.jpg"
+      }
     ]
   },
   "10_november_2000": {
@@ -103,10 +247,26 @@
     "date": "Ноябрь 2000",
     "anchor": "rescue_the_drowning",
     "files": [
-      "Hy7ZR1iTA3g.jpg",
-      "HkVZAJjpRng.jpg",
-      "r1HW0yj6Rhg.jpg",
-      "SkUW01sTAnl.jpg"
+      {
+        "small": "BJDu9k4dal_small.jpg",
+        "medium": "BJDu9k4dal_medium.jpg",
+        "large": "BJDu9k4dal_large.jpg"
+      },
+      {
+        "small": "Hkuucy4dae_small.jpg",
+        "medium": "Hkuucy4dae_medium.jpg",
+        "large": "Hkuucy4dae_large.jpg"
+      },
+      {
+        "small": "ryKu5yVuae_small.jpg",
+        "medium": "ryKu5yVuae_medium.jpg",
+        "large": "ryKu5yVuae_large.jpg"
+      },
+      {
+        "small": "H15OqkNOTl_small.jpg",
+        "medium": "H15OqkNOTl_medium.jpg",
+        "large": "H15OqkNOTl_large.jpg"
+      }
     ]
   },
   "11_december_2000": {
@@ -114,10 +274,26 @@
     "date": "Декабрь 2000",
     "anchor": "salary",
     "files": [
-      "BJwWRyjpA2e.jpg",
-      "HJdWAkspR3l.jpg",
-      "ByKWAyj6C3g.jpg",
-      "rJ5-Ayi6Ahg.jpg"
+      {
+        "small": "ryjd9kVOpx_small.jpg",
+        "medium": "ryjd9kVOpx_medium.jpg",
+        "large": "ryjd9kVOpx_large.jpg"
+      },
+      {
+        "small": "r1nu9k4uTl_small.jpg",
+        "medium": "r1nu9k4uTl_medium.jpg",
+        "large": "r1nu9k4uTl_large.jpg"
+      },
+      {
+        "small": "rya_c1VOax_small.jpg",
+        "medium": "rya_c1VOax_medium.jpg",
+        "large": "rya_c1VOax_large.jpg"
+      },
+      {
+        "small": "HyC_qJEuTe_small.jpg",
+        "medium": "HyC_qJEuTe_medium.jpg",
+        "large": "HyC_qJEuTe_large.jpg"
+      }
     ]
   },
   "12_january_2001": {
@@ -125,32 +301,26 @@
     "date": "Январь 2001",
     "anchor": "wish",
     "files": [
-      "HksbAJs603g.jpg",
-      "Hy3-RyoTC3g.jpg",
-      "Sy6bAyipRng.jpg",
-      "SJC-A1oTCnx.jpg"
-    ]
-  },
-  "13_unknown_1": {
-    "title": "Погружение в INTERNET",
-    "date": "Неизвестно",
-    "anchor": "dive_into_internet",
-    "files": [
-      "ByJMRyi6R3x.jpg",
-      "HygfC1oTCnl.jpg",
-      "By-MR1i6Cng.jpg",
-      "Syzf01s60ng.jpg"
-    ]
-  },
-  "14_unknown_2": {
-    "title": "Полное погружение",
-    "date": "Неизвестно",
-    "anchor": "deep_dive",
-    "files": [
-      "BJQz01iT03e.jpg",
-      "ryEzAJiTC3g.jpg",
-      "BkHzAJiTAng.jpg",
-      "HkLzCyj6A2e.jpg"
+      {
+        "small": "r1yxdck4_Tl_small.jpg",
+        "medium": "r1yxdck4_Tl_medium.jpg",
+        "large": "r1yxdck4_Tl_large.jpg"
+      },
+      {
+        "small": "rkeeu9k4uTg_small.jpg",
+        "medium": "rkeeu9k4uTg_medium.jpg",
+        "large": "rkeeu9k4uTg_large.jpg"
+      },
+      {
+        "small": "rkWxu9J4uae_small.jpg",
+        "medium": "rkWxu9J4uae_medium.jpg",
+        "large": "rkWxu9J4uae_large.jpg"
+      },
+      {
+        "small": "ByfxOcJ4dpg_small.jpg",
+        "medium": "ByfxOcJ4dpg_medium.jpg",
+        "large": "ByfxOcJ4dpg_large.jpg"
+      }
     ]
   }
 }

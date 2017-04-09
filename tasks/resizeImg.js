@@ -20,31 +20,37 @@ function resizeWithSharp(fullPath, filename, width, height, saveFolder) {
 const sharpJobs = [];
 
 function dealWithFile(filePath) {
-  const filename = shortid.generate() + '.jpg';
+  const filename = shortid.generate();
 
-  // generate big image
-  sharpJobs.push(resizeWithSharp(filePath, filename, null, 2500, 'public/img/l/'));
+  const filenames = {
+    small: `${filename}_small.jpg`,
+    medium: `${filename}_medium.jpg`,
+    large: `${filename}_large.jpg`,
+  };
+
+  // generate large image
+  sharpJobs.push(resizeWithSharp(filePath, filenames.large, null, 2500, 'public/img/comics/'));
 
   // generate medium image
-  sharpJobs.push(resizeWithSharp(filePath, filename, null, 1500, 'public/img/m/'));
+  sharpJobs.push(resizeWithSharp(filePath, filenames.medium, null, 1500, 'public/img/comics/'));
 
   // generate thumbnail image
-  sharpJobs.push(resizeWithSharp(filePath, filename, 300, 300, 'public/img/s/'));
+  sharpJobs.push(resizeWithSharp(filePath, filenames.small, 300, 300, 'public/img/comics/'));
 
-  return filename;
+  return filenames;
 }
 
 folderList.forEach((folder) => {
   foldersWithFiles[folder] = {
     title: '',
     date: '',
-    files: fs.readdirSync('images/' + folder),
+    files: fs.readdirSync(`images/${folder}`),
   };
 });
 
 Object.keys(foldersWithFiles).forEach((folder) => {
   foldersWithFiles[folder].files.forEach((file, i) => {
-    foldersWithFiles[folder].files[i] = dealWithFile('images/' + folder + '/' + file);
+    foldersWithFiles[folder].files[i] = dealWithFile(`images/${folder}/${file}`);
   });
 });
 

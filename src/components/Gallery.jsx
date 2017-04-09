@@ -1,36 +1,61 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { addImages } from './ImageViewer.duck';
+import { setGalleryId, addImages, showOverlay } from './ImageViewer.duck';
 import * as css from './Gallery.style';
+import ImageViewer from '../components/ImageViewer';
 
-const Gallery = ({ images, alt, actions }) => {
-  const elemImages = images.map((file, i) => (
-    <div className={css.imageContainer} key={file}>
-      <button type="button" className={css.imgButton} onClick={() => { actions.addImages(images, file); }}>
-        <img className={css.image} alt={`${alt} ${i + 1}`} src={`/img/s/${file}`} />
+const Gallery = ({ images, alt, id, actions, imageViewer }) => {
+  const elemImages = images.map((files, i) => (
+    <div className={css.imageContainer} key={files.small}>
+      <button
+        type="button"
+        className={css.imgButton}
+        onClick={() => {
+          actions.setGalleryId(id);
+          actions.addImages(images, files);
+          actions.showOverlay();
+        }}
+      >
+        <img className={css.image} alt={`${alt}, page ${i + 1}`} src={`/img/comics/${files.small}`} />
       </button>
     </div>
   ));
   return (
     <div className={css.images}>
       {elemImages}
+      {imageViewer.visible && imageViewer.galleryId === id && <ImageViewer />}
     </div>
   );
 };
 
 Gallery.propTypes = {
-  images: PropTypes.arrayOf(PropTypes.string).isRequired,
+  images: PropTypes.arrayOf(PropTypes.object).isRequired,
   alt: PropTypes.string.isRequired,
+  id: PropTypes.string.isRequired,
   actions: PropTypes.shape({
     addImages: PropTypes.func.isRequired,
+    showOverlay: PropTypes.func.isRequired,
+  }).isRequired,
+  imageViewer: PropTypes.shape({
+    visible: PropTypes.bool.isRequired,
+    galleryId: PropTypes.string.isRequired,
   }).isRequired,
 };
 
-function mapDispatchToProps(dispatch) {
+function mapStateToProps({ imageViewer }) {
   return {
-    actions: bindActionCreators({ addImages }, dispatch),
+    imageViewer: {
+      visible: imageViewer.visible,
+      galleryId: imageViewer.galleryId,
+    },
   };
 }
 
-export default connect(null, mapDispatchToProps)(Gallery);
+function mapDispatchToProps(dispatch) {
+  return {
+    actions: bindActionCreators({ addImages, showOverlay, setGalleryId }, dispatch),
+  };
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Gallery);

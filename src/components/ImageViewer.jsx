@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux';
 import { px } from 'csx';
 import * as ownActions from './ImageViewer.duck';
 import * as css from './ImageViewer.style';
+import * as core from './ImageViewer.core';
 
 function rPx(string) {
   return Number(string.slice(0, -2));
@@ -13,155 +14,108 @@ class ImageViewer extends Component {
   constructor(props) {
     super(props);
     this.cursor = { top: 0, left: 0 };
-    this.state = {
-      initialScale: '',
-      initialWidth: '',
-      initialHeight: '',
-      currentScale: '',
-      initialBox: {},
+    this.state = { rnd: Math.floor(Math.random() * (2000 - 1000)) + 1000 };
+    document.body.classList.add('noscroll');
+  }
+
+  componentDidMount() {
+    const wait = setInterval(() => {
+      const w = this.img.naturalWidth;
+      const h = this.img.naturalHeight;
+      if (w && h) {
+        clearInterval(wait);
+        this.imgInit();
+      }
+    }, 30);
+  }
+
+  onWheel = (e) => {
+    const img = {
+      initialBox: this.props.initial.box,
+      initialWidth: this.props.initial.width,
+      initialHeight: this.props.initial.height,
+      naturalWidth: this.img.naturalWidth,
+      naturalHeight: this.img.naturalHeight,
+      currentWidth: this.img.width,
+      currentHeight: this.img.height,
+      currentLeft: rPx(this.img.style.left),
+      currentTop: rPx(this.img.style.top),
     };
+
+    const newImg = core.zoom(e, img);
+
+    // main
+    this.img.style.width = px(newImg.width);
+    this.img.style.height = px(newImg.height);
+    this.img.style.left = px(newImg.left);
+    this.img.style.top = px(newImg.top);
+
+    // preview
+    if (this.preview) {
+      this.preview.style.width = px(newImg.width);
+      this.preview.style.height = px(newImg.height);
+      this.preview.style.left = px(newImg.left);
+      this.preview.style.top = px(newImg.top);
+    }
+
+    this.props.actions.setCurrentScale(this.scale());
   }
 
-  scale = () => (this.img.width / this.img.naturalWidth) * 100;
-
-  adjustSize = () => {
-    const windowWidth = window.innerWidth;
-    const windowHeight = window.innerHeight;
-
-    const imgWidth = this.img.naturalWidth;
-    const imgHeight = this.img.naturalHeight;
-
-    if (imgWidth > windowWidth || imgHeight > windowHeight) {
-      let scale = (windowWidth / imgWidth);
-
-      if (imgHeight * scale > windowHeight) {
-        scale = windowHeight / imgHeight;
-      }
-
-      this.img.style.width = px(Math.round(imgWidth * scale));
-      this.img.style.height = px(Math.round(imgHeight * scale));
-    }
-
-    const xOffset = Math.round((windowWidth - this.img.width) / 2);
-    this.img.style.left = px(xOffset);
-
-    const yOffset = Math.round((windowHeight - this.img.height) / 2);
-    this.img.style.top = px(yOffset);
-
-    this.img.style.visibility = 'visible';
-
-    this.setState({ initialScale: this.scale().toFixed(2) });
-    this.setState({ initialWidth: this.img.width });
-    this.setState({ initialHeight: this.img.height });
-
-    const box = this.img.getBoundingClientRect();
-    this.setState({ initialBox: box });
-  }
-
-  wheel = (e) => {
-    const { initialBox } = this.state;
-
-    const currentWidth = rPx(this.img.style.width);
-    const currentHeight = rPx(this.img.style.height);
-    let newWidth = 0;
-    let newHeight = 0;
-    const currentLeft = rPx(this.img.style.left);
-    const currentTop = rPx(this.img.style.top);
-
-    if (e.deltaY < 0) {
-      newWidth = rPx(this.img.style.width) + (Math.round(this.img.naturalWidth / 100) * 4);
-      if (newWidth > this.img.naturalWidth) {
-        newWidth = this.img.naturalWidth;
-      }
-
-      newHeight = rPx(this.img.style.height) + (Math.round(this.img.naturalHeight / 100) * 4);
-      if (newHeight > this.img.naturalHeight) {
-        newHeight = this.img.naturalHeight;
-      }
-    } else {
-      newWidth = rPx(this.img.style.width) - (Math.round(this.img.naturalWidth / 100) * 4);
-      if (newWidth < this.state.initialWidth) {
-        newWidth = this.state.initialWidth;
-      }
-
-      newHeight = rPx(this.img.style.height) - (Math.round(this.img.naturalHeight / 100) * 4);
-      if (newHeight < this.state.initialHeight) {
-        newHeight = this.state.initialHeight;
-      }
-    }
-
-    const newWidthPercent = (newWidth / this.img.width) * 100;
-    const newHeightPercent = (newHeight / this.img.height) * 100;
-
-    const leftSide = e.offsetX ? (e.offsetX) : e.pageX - this.img.offsetLeft;
-    const topSide = e.offsetY ? (e.offsetY) : e.pageY - this.img.offsetTop;
-
-    const newLeftSide = leftSide - Math.round(leftSide * (newWidthPercent / 100));
-    const newTopSide = topSide - Math.round(topSide * (newHeightPercent / 100));
-
-    let newLeft = currentLeft + newLeftSide;
-    let newTop = currentTop + newTopSide;
-
-    // sticky top
-    if (currentTop <= initialBox.top && newTop >= initialBox.top) {
-      newTop = initialBox.top;
-    }
-
-    // sticky bottom
-    const newboxBot = newHeight + newTop;
-    if (currentHeight + currentTop >= initialBox.bottom
-      && newHeight + newTop <= initialBox.bottom) {
-      newTop += initialBox.bottom - newboxBot;
-    }
-
-    // sticky left
-    if (currentLeft <= initialBox.left && newLeft >= initialBox.left) {
-      newLeft = initialBox.left;
-    }
-
-    // sticky right
-    const newboxRight = newWidth + newLeft;
-    if (currentWidth + currentLeft >= initialBox.right
-      && newWidth + newLeft <= initialBox.right) {
-      newLeft += initialBox.right - newboxRight;
-    }
-
-    this.img.style.width = px(newWidth);
-    this.img.style.height = px(newHeight);
-    this.img.style.left = px(newLeft);
-    this.img.style.top = px(newTop);
-    this.setState({ currentScale: this.scale() });
-  }
-
-  move = (e) => {
-    this.cursor.left = e.pageX;
-    this.cursor.top = e.pageY;
+  onMouseDown = (e) => {
+    this.cursor.left = e.clientX;
+    this.cursor.top = e.clientY;
 
     this.img.ondragstart = () => false;
 
-    if (this.scale().toFixed(2) === this.state.initialScale) {
+    if (this.scale() === this.props.initial.scale) {
       return;
     }
 
     document.onmousemove = (event) => {
+      const rangeX = event.clientX - this.cursor.left;
+      const rangeY = event.clientY - this.cursor.top;
+      const currentLeft = rPx(this.img.style.left);
+      const curentTop = rPx(this.img.style.top);
+
       const box = this.img.getBoundingClientRect();
-      const rangeX = event.pageX - this.cursor.left;
-      const rangeY = event.pageY - this.cursor.top;
+
+      let left = 0;
+      let top = 0;
 
       if (rangeX < 0) {
-        this.moveLeft(event, rangeX, box);
+        left = core.moveLeft(rangeX, box.left, currentLeft, this.img.width, window.innerWidth);
       } else {
-        this.moveRight(event, rangeX, box);
+        left = core.moveRight(rangeX, box.right, currentLeft, this.img.width, window.innerWidth);
       }
 
       if (rangeY < 0) {
-        this.moveTop(event, rangeY, box);
+        top = core.moveTop(rangeY, box.top, curentTop, this.img.height, window.innerHeight);
       } else {
-        this.moveBottom(event, rangeY, box);
+        top = core.moveBottom(rangeY, box.bottom, curentTop, this.img.height, window.innerHeight);
       }
 
-      this.cursor.left = event.pageX;
-      this.cursor.top = event.pageY;
+      // main
+      if (currentLeft !== left) {
+        this.img.style.left = px(left);
+      }
+
+      if (curentTop !== top) {
+        this.img.style.top = px(top);
+      }
+
+      // preview
+      if (this.preview) {
+        if (currentLeft !== left) {
+          this.preview.style.left = px(left);
+        }
+
+        if (curentTop !== top) {
+          this.preview.style.top = px(top);
+        }
+      }
+
+      this.cursor.left = event.clientX;
+      this.cursor.top = event.clientY;
     };
 
     this.img.onmouseup = () => {
@@ -172,171 +126,80 @@ class ImageViewer extends Component {
     document.onmouseup = () => {
       document.onmousemove = null;
       this.img.onmouseup = null;
+      document.onmouseup = null;
     };
   }
 
-  moveLeft = (e, rangeX, box) => {
-    let shiftX = rangeX;
-    // left frame border
-    let border = 0;
-    // how many pixels left from image left border to frame left border?
-    let rangeToBorder = 0;
+  scale = () => ((this.img.width / this.img.naturalWidth) * 100).toFixed(2);
 
-    if (this.img.width > window.innerWidth) {
-      border = Math.abs(window.innerWidth - this.img.width);
-      rangeToBorder = border + box.left;
+  imgInit = () => {
+    const img = {
+      width: this.img.naturalWidth,
+      height: this.img.naturalHeight,
+    };
 
-      // stopper
-      if (rangeToBorder < 0) {
-        return;
-      }
+    const newImg = core.adjust(img, window.innerWidth, window.innerHeight);
 
-      // rangeToBorder = 0, then stop
-      if (Math.abs(shiftX) >= rangeToBorder) {
-        shiftX = -rangeToBorder;
-      }
-    } else {
-      border = Math.round((window.innerWidth - this.img.width) / 2);
-      rangeToBorder = box.left - border;
+    // main
+    this.img.style.width = px(newImg.width);
+    this.img.style.height = px(newImg.height);
+    this.img.style.left = px(newImg.left);
+    this.img.style.top = px(newImg.top);
 
-      if (rangeToBorder < 0) {
-        return;
-      }
+    this.img.style.visibility = 'visible';
 
-      if (Math.abs(shiftX) >= rangeToBorder) {
-        shiftX = -rangeToBorder;
-      }
+    // preview
+    if (this.preview) {
+      this.preview.style.width = px(newImg.width);
+      this.preview.style.height = px(newImg.height);
+      this.preview.style.left = px(newImg.left);
+      this.preview.style.top = px(newImg.top);
+
+      this.preview.style.visibility = 'visible';
     }
 
-    this.img.style.left = px(rPx(this.img.style.left) + shiftX);
+    const box = this.img.getBoundingClientRect();
+
+    this.props.actions.setInitialValues(this.scale(), box, this.img.width, this.img.height);
   }
 
-  moveRight = (e, rangeX, box) => {
-    let shiftX = rangeX;
-    let border = 0;
-    let rangeToBorder = 0;
-
-    if (this.img.width > window.innerWidth) {
-      border = this.img.width;
-      rangeToBorder = border - box.right;
-
-      if (rangeToBorder < 0) {
-        return;
-      }
-
-      if (shiftX >= rangeToBorder) {
-        shiftX = rangeToBorder;
-      }
-    } else {
-      border = this.img.width + (Math.round(window.innerWidth - this.img.width) / 2);
-      rangeToBorder = border - box.right;
-
-      if (rangeToBorder < 0) {
-        return;
-      }
-
-      if (shiftX >= rangeToBorder) {
-        shiftX = rangeToBorder;
-      }
-    }
-
-    this.img.style.left = px(rPx(this.img.style.left) + shiftX);
+  closeOverlay = () => {
+    document.body.classList.remove('noscroll');
+    this.props.actions.hideOverlay();
   }
 
-  moveTop = (e, rangeY, box) => {
-    let shiftY = rangeY;
-    let border = 0;
-    let rangeToBorder = 0;
-
-    if (this.img.height > window.innerHeight) {
-      border = Math.abs(window.innerHeight - this.img.height);
-      rangeToBorder = border + box.top;
-
-      if (rangeToBorder < 0) {
-        return;
-      }
-
-      if (Math.abs(shiftY) >= rangeToBorder) {
-        shiftY = -rangeToBorder;
-      }
-    } else {
-      border = Math.round((window.innerHeight - this.img.height) / 2);
-      rangeToBorder = box.top - border;
-
-      if (rangeToBorder < 0) {
-        return;
-      }
-
-      if (Math.abs(shiftY) >= rangeToBorder) {
-        shiftY = -rangeToBorder;
-      }
-    }
-
-    this.img.style.top = px(rPx(this.img.style.top) + shiftY);
-  }
-
-  moveBottom = (e, rangeY, box) => {
-    let shiftY = rangeY;
-    let border = 0;
-    let rangeToBorder = 0;
-
-    if (this.img.height > window.innerHeight) {
-      border = this.img.height;
-      rangeToBorder = border - box.bottom;
-
-      if (rangeToBorder < 0) {
-        return;
-      }
-
-      if (shiftY >= rangeToBorder) {
-        shiftY = rangeToBorder;
-      }
-    } else {
-      border = this.img.height + (Math.round(window.innerHeight - this.img.height) / 2);
-      rangeToBorder = border - box.bottom;
-
-      // stopper
-      if (rangeToBorder < 0) {
-        return;
-      }
-
-      if (shiftY >= rangeToBorder) {
-        shiftY = rangeToBorder;
-      }
-    }
-
-    this.img.style.top = px(rPx(this.img.style.top) + shiftY);
+  loadingCompleted = () => {
+    this.props.actions.setImageLoaded();
   }
 
   render() {
-    const { currentImg } = this.props;
-    const { initialScale } = this.state;
-    let scale = 0;
-
-    if (!currentImg) {
-      return null;
-    }
-
-    if (this.img) {
-      scale = this.scale().toFixed(2);
-    }
-
-    document.body.classList.add('noscroll');
+    const { currentImg, loaded, initial, scale } = this.props;
 
     return (
       <div className={css.overlay}>
         <div style={{ position: 'absolute', color: 'red', zIndex: 100550 }}>
-          {initialScale}, {scale},
+          {initial.scale}, {scale}, <button className="btn" type="button" onClick={this.closeOverlay}>Close</button>
         </div>
+
+        {!loaded &&
+          <img
+            className={css.previewimg}
+            alt={currentImg}
+            key={`${currentImg} preview`}
+            src={`/img/comics/${currentImg.small}`}
+            ref={(prev) => { this.preview = prev; }}
+          />
+        }
+
         <img
           className={css.fullimg}
           alt={currentImg}
-          key={currentImg}
-          src={`/img/m/${currentImg}`}
+          key={`${currentImg} full`}
+          src={`/img/comics/${currentImg.medium}`}
           ref={(img) => { this.img = img; }}
-          onLoad={this.adjustSize}
-          onWheel={this.wheel}
-          onMouseDown={this.move}
+          onLoad={this.loadingCompleted}
+          onWheel={this.onWheel}
+          onMouseDown={this.onMouseDown}
         />
       </div>
     );
@@ -354,7 +217,25 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
-  currentImg: PropTypes.string.isRequired,
+  currentImg: PropTypes.shape({
+    small: PropTypes.string.isRequired,
+    medium: PropTypes.string.isRequired,
+    large: PropTypes.string.isRequired,
+  }).isRequired,
+  loaded: PropTypes.bool.isRequired,
+  initial: PropTypes.shape({
+    scale: PropTypes.number.isRequired,
+    box: PropTypes.object.isRequired,
+    width: PropTypes.string.isRequired,
+    height: PropTypes.string.isRequired,
+  }).isRequired,
+  scale: PropTypes.number.isRequired,
+  actions: PropTypes.shape({
+    hideOverlay: PropTypes.func.isRequired,
+    setImageLoaded: PropTypes.func.isRequired,
+    setInitialValues: PropTypes.func.isRequired,
+    setCurrentScale: PropTypes.func.isRequired,
+  }).isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ImageViewer);
