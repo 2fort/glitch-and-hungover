@@ -11,7 +11,7 @@ const App = () => {
         <p className={css.date}>{elem.date}</p>
       </div>
       <hr className={css.hr} />
-      <Gallery id={elem.anchor} images={elem.files} alt={elem.title} />
+      <Gallery title={elem.title} id={elem.anchor} images={elem.files} />
     </div>
   ));
 

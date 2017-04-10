@@ -5,15 +5,18 @@ const REMOVE_IMAGES = `${prefix}/REMOVE_IMAGES`;
 const SHOW_OVERLAY = `${prefix}/SHOW_OVERLAY`;
 const HIDE_OVERLAY = `${prefix}/HIDE_OVERLAY`;
 const SET_GALLERY_ID = `${prefix}/SET_GALLERY_ID`;
+const SET_GALLERY_TITLE = `${prefix}/SET_GALLERY_TITLE`;
 const SET_IMAGE_LOADED = `${prefix}/SET_IMAGE_LOADED`;
 const SET_INITIAL_VALUES = `${prefix}/SET_INITIAL_VALUES`;
 const SET_CURRENT_SCALE = `${prefix}/SET_CURRENT_SCALE`;
+const PREVIOUS_IMAGE = `${prefix}/PREVIOUS_IMAGE`;
+const NEXT_IMAGE = `${prefix}/NEXT_IMAGE`;
 
-export function addImages(images, file) {
+export function addImages(images, imagePosition) {
   return {
     type: ADD_IMAGES,
     images,
-    file,
+    imagePosition,
   };
 }
 
@@ -42,6 +45,13 @@ export function setGalleryId(id) {
   };
 }
 
+export function setGalleryTitle(title) {
+  return {
+    type: SET_GALLERY_TITLE,
+    title,
+  };
+}
+
 export function setImageLoaded() {
   return {
     type: SET_IMAGE_LOADED,
@@ -67,10 +77,23 @@ export function setCurrentScale(scale) {
   };
 }
 
+export function prevImage() {
+  return {
+    type: PREVIOUS_IMAGE,
+  };
+}
+
+export function nextImage() {
+  return {
+    type: NEXT_IMAGE,
+  };
+}
+
 const defaultState = {
   galleryId: '',
+  galleryTitle: '',
   images: [],
-  currentImg: '',
+  currentImg: 0,
   visible: false,
   loaded: false,
   initial: {
@@ -87,8 +110,11 @@ export default function reducer(state = defaultState, action) {
     case SET_GALLERY_ID:
       return { ...state, galleryId: action.id };
 
+    case SET_GALLERY_TITLE:
+      return { ...state, galleryTitle: action.title };
+
     case ADD_IMAGES:
-      return { ...state, images: action.images, currentImg: action.file };
+      return { ...state, images: action.images, currentImg: action.imagePosition };
 
     case REMOVE_IMAGES:
       return { ...state, images: [], currentImg: '' };
@@ -107,6 +133,12 @@ export default function reducer(state = defaultState, action) {
 
     case SET_CURRENT_SCALE:
       return { ...state, scale: action.scale };
+
+    case PREVIOUS_IMAGE:
+      return { ...state, currentImg: state.currentImg - 1, loaded: false };
+
+    case NEXT_IMAGE:
+      return { ...state, currentImg: state.currentImg + 1, loaded: false };
 
     default:
       return state;

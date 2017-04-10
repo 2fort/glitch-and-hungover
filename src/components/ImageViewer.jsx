@@ -19,17 +19,18 @@ class ImageViewer extends Component {
   }
 
   componentDidMount() {
-    const wait = setInterval(() => {
-      const w = this.img.naturalWidth;
-      const h = this.img.naturalHeight;
-      if (w && h) {
-        clearInterval(wait);
-        this.imgInit();
-      }
-    }, 30);
+    this.initialize();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.currentImg !== prevProps.currentImg) {
+      this.initialize();
+    }
   }
 
   onWheel = (e) => {
+    const { scale, initial } = this.props;
+
     const img = {
       initialBox: this.props.initial.box,
       initialWidth: this.props.initial.width,
@@ -41,6 +42,10 @@ class ImageViewer extends Component {
       currentLeft: rPx(this.img.style.left),
       currentTop: rPx(this.img.style.top),
     };
+
+    if ((scale === 100.00 && e.deltaY < 0) || (scale === initial.scale && e.deltaY > 0)) {
+      return;
+    }
 
     const newImg = core.zoom(e, img);
 
@@ -130,7 +135,18 @@ class ImageViewer extends Component {
     };
   }
 
-  scale = () => ((this.img.width / this.img.naturalWidth) * 100).toFixed(2);
+  scale = () => Number(((this.img.width / this.img.naturalWidth) * 100).toFixed(2));
+
+  initialize = () => {
+    const wait = setInterval(() => {
+      const w = this.img.naturalWidth;
+      const h = this.img.naturalHeight;
+      if (w && h) {
+        clearInterval(wait);
+        this.imgInit();
+      }
+    }, 30);
+  }
 
   imgInit = () => {
     const img = {
@@ -159,8 +175,10 @@ class ImageViewer extends Component {
     }
 
     const box = this.img.getBoundingClientRect();
+    const scale = this.scale();
 
-    this.props.actions.setInitialValues(this.scale(), box, this.img.width, this.img.height);
+    this.props.actions.setInitialValues(scale, box, this.img.width, this.img.height);
+    this.props.actions.setCurrentScale(scale);
   }
 
   closeOverlay = () => {
@@ -173,12 +191,28 @@ class ImageViewer extends Component {
   }
 
   render() {
-    const { currentImg, loaded, initial, scale } = this.props;
+    const { images, currentImg, loaded, initial, scale, actions } = this.props;
 
     return (
       <div className={css.overlay}>
         <div style={{ position: 'absolute', color: 'red', zIndex: 100550 }}>
-          {initial.scale}, {scale}, <button className="btn" type="button" onClick={this.closeOverlay}>Close</button>
+          {initial.scale}, {scale},
+          <button className="btn btn-secondary" type="button" onClick={this.closeOverlay}>Close</button>{' '}
+          <button
+            className="btn btn-primary"
+            onClick={actions.prevImage}
+            disabled={currentImg === 1}
+          >
+            Prev
+          </button>
+          {' '}
+          <button
+            className="btn btn-primary"
+            onClick={actions.nextImage}
+            disabled={currentImg === images.length}
+          >
+            Next
+          </button>
         </div>
 
         {!loaded &&
@@ -186,7 +220,7 @@ class ImageViewer extends Component {
             className={css.previewimg}
             alt={currentImg}
             key={`${currentImg} preview`}
-            src={`/img/comics/${currentImg.small}`}
+            src={`/img/comics/${images[currentImg - 1].small}`}
             ref={(prev) => { this.preview = prev; }}
           />
         }
@@ -195,7 +229,7 @@ class ImageViewer extends Component {
           className={css.fullimg}
           alt={currentImg}
           key={`${currentImg} full`}
-          src={`/img/comics/${currentImg.medium}`}
+          src={`/img/comics/${images[currentImg - 1].medium}`}
           ref={(img) => { this.img = img; }}
           onLoad={this.loadingCompleted}
           onWheel={this.onWheel}
@@ -217,17 +251,18 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
-  currentImg: PropTypes.shape({
+  images: PropTypes.arrayOf(PropTypes.shape({
     small: PropTypes.string.isRequired,
     medium: PropTypes.string.isRequired,
     large: PropTypes.string.isRequired,
-  }).isRequired,
+  }).isRequired).isRequired,
+  currentImg: PropTypes.number.isRequired,
   loaded: PropTypes.bool.isRequired,
   initial: PropTypes.shape({
     scale: PropTypes.number.isRequired,
     box: PropTypes.object.isRequired,
-    width: PropTypes.string.isRequired,
-    height: PropTypes.string.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
   }).isRequired,
   scale: PropTypes.number.isRequired,
   actions: PropTypes.shape({

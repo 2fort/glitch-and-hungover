@@ -1,11 +1,11 @@
 import React, { PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { setGalleryId, addImages, showOverlay } from './ImageViewer.duck';
+import { setGalleryId, addImages, showOverlay, setGalleryTitle } from './ImageViewer.duck';
 import * as css from './Gallery.style';
 import ImageViewer from '../components/ImageViewer';
 
-const Gallery = ({ images, alt, id, actions, imageViewer }) => {
+const Gallery = ({ images, title, id, actions, imageViewer }) => {
   const elemImages = images.map((files, i) => (
     <div className={css.imageContainer} key={files.small}>
       <button
@@ -13,11 +13,12 @@ const Gallery = ({ images, alt, id, actions, imageViewer }) => {
         className={css.imgButton}
         onClick={() => {
           actions.setGalleryId(id);
-          actions.addImages(images, files);
+          actions.setGalleryTitle(title);
+          actions.addImages(images, i + 1);
           actions.showOverlay();
         }}
       >
-        <img className={css.image} alt={`${alt}, page ${i + 1}`} src={`/img/comics/${files.small}`} />
+        <img className={css.image} alt={`${title}, page ${i + 1}`} src={`/img/comics/${files.small}`} />
       </button>
     </div>
   ));
@@ -31,9 +32,11 @@ const Gallery = ({ images, alt, id, actions, imageViewer }) => {
 
 Gallery.propTypes = {
   images: PropTypes.arrayOf(PropTypes.object).isRequired,
-  alt: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   actions: PropTypes.shape({
+    setGalleryId: PropTypes.func.isRequired,
+    setGalleryTitle: PropTypes.func.isRequired,
     addImages: PropTypes.func.isRequired,
     showOverlay: PropTypes.func.isRequired,
   }).isRequired,
@@ -54,7 +57,7 @@ function mapStateToProps({ imageViewer }) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators({ addImages, showOverlay, setGalleryId }, dispatch),
+    actions: bindActionCreators({ addImages, showOverlay, setGalleryId, setGalleryTitle }, dispatch),
   };
 }
 
