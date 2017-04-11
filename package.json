@@ -8,6 +8,7 @@
     "start": "webpack-dev-server --host 0.0.0.0",
     "static": "NODE_PATH=. NODE_ENV=production nodemon staticServer.js",
     "build": "cd build && ls | xargs rm -rf && cd .. && NODE_ENV=production webpack -p --config webpack.prod.config.js",
+    "build:server": "NODE_ENV=production BASE_URL=http://glitch-hungover.comiket.ru webpack -p --config webpack.prod.config.js",
     "lint": "eslint \"./tasks/**/*\" \"./src/**/*\"",
     "img:resize": "NODE_PATH=. node tasks/resizeImg.js"
   },
@@ -47,6 +48,8 @@
     "express": "^4.15.2",
     "proxy-middleware": "^0.15.0",
     "sharp": "^0.17.3",
+    "shipit-deploy": "^2.4.0",
+    "shipit-shared": "^4.4.2",
     "shortid": "^2.2.8"
   }
 }

@@ -1,6 +1,8 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const BASE_URL = 'http://localhost:3001';
+
 module.exports = {
   entry: {
     dev: [
@@ -59,13 +61,12 @@ module.exports = {
       chunks: ['dev', 'app'],
       inject: 'body',
       filename: 'index.html',
+      baseurl: BASE_URL,
     }),
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('development'),
-        IMG_L: JSON.stringify('/img/l/'),
-        IMG_M: JSON.stringify('/img/m/'),
-        IMG_S: JSON.stringify('/img/s/'),
+        IMG_FOLDER: JSON.stringify('/img/comics/'),
       },
     }),
     new webpack.HotModuleReplacementPlugin(),

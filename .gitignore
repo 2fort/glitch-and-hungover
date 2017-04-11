@@ -1,6 +1,10 @@
+build
 node_modules
 images
 images_1999
+
+records.json
+shipitfile.js
 
 public/img/comics/*
 public/img/o/*
