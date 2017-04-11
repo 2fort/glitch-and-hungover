@@ -3,7 +3,7 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
 
-const BASE_URL = process.env.BASEURL || 'http://glitch-hungover.dev';
+const BASE_URL = process.env.BASE_URL || 'http://glitch-hungover.dev';
 
 function chunksSortModeExp(chunk1, chunk2, orders) {
   const order1 = orders.indexOf(chunk1.names[0]);
