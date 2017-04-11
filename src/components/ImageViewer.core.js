@@ -1,4 +1,4 @@
-export function adjust(img, viewportWidth, viewportHeight) {
+export function adjust(img, viewportWidth, viewportHeight, offsetY) {
   const newImg = {
     width: img.width,
     height: img.height,
@@ -18,7 +18,7 @@ export function adjust(img, viewportWidth, viewportHeight) {
   }
 
   newImg.left = Math.round((viewportWidth - newImg.width) / 2);
-  newImg.top = Math.round((viewportHeight - newImg.height) / 2);
+  newImg.top = Math.round((viewportHeight - newImg.height) / 2) + offsetY;
 
   return newImg;
 }
@@ -183,13 +183,13 @@ export function moveRight(rangeX, boxRight, currentLeft, imgWidth, viewportWidth
   return currentLeft + shiftX;
 }
 
-export function moveTop(rangeY, boxTop, currentTop, imgHeight, viewportHeight) {
+export function moveTop(rangeY, boxTop, currentTop, imgHeight, viewportHeight, offsetY) {
   let shiftY = rangeY;
   let border = 0;
   let rangeToBorder = 0;
 
   if (imgHeight > viewportHeight) {
-    border = Math.abs(viewportHeight - imgHeight);
+    border = Math.abs(viewportHeight - imgHeight) - offsetY;
     rangeToBorder = border + boxTop;
 
     if (rangeToBorder < 0) {
@@ -200,7 +200,7 @@ export function moveTop(rangeY, boxTop, currentTop, imgHeight, viewportHeight) {
       shiftY = -rangeToBorder;
     }
   } else {
-    border = Math.round((viewportHeight - imgHeight) / 2);
+    border = Math.round((viewportHeight - imgHeight) / 2) - offsetY;
     rangeToBorder = boxTop - border;
 
     if (rangeToBorder < 0) {
@@ -215,13 +215,13 @@ export function moveTop(rangeY, boxTop, currentTop, imgHeight, viewportHeight) {
   return currentTop + shiftY;
 }
 
-export function moveBottom(rangeY, boxBottom, currentTop, imgHeight, viewportHeight) {
+export function moveBottom(rangeY, boxBottom, currentTop, imgHeight, viewportHeight, offsetY) {
   let shiftY = rangeY;
   let border = 0;
   let rangeToBorder = 0;
 
   if (imgHeight > viewportHeight) {
-    border = imgHeight;
+    border = imgHeight + offsetY;
     rangeToBorder = border - boxBottom;
 
     if (rangeToBorder < 0) {
@@ -232,7 +232,7 @@ export function moveBottom(rangeY, boxBottom, currentTop, imgHeight, viewportHei
       shiftY = rangeToBorder;
     }
   } else {
-    border = imgHeight + (Math.round(viewportHeight - imgHeight) / 2);
+    border = imgHeight + (Math.round(viewportHeight - imgHeight) / 2) + offsetY;
     rangeToBorder = border - boxBottom;
 
     // stopper

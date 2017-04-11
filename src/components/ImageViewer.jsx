@@ -2,6 +2,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { px } from 'csx';
+import { classes } from 'typestyle';
 import * as ownActions from './ImageViewer.duck';
 import * as css from './ImageViewer.style';
 import * as core from './ImageViewer.core';
@@ -16,6 +17,24 @@ class ImageViewer extends Component {
     this.cursor = { top: 0, left: 0 };
     this.state = { rnd: Math.floor(Math.random() * (2000 - 1000)) + 1000 };
     document.body.classList.add('noscroll');
+
+    document.onkeydown = (event) => {
+      if (event.keyCode === 37) {
+        this.onLeftKeyDown();
+      }
+      if (event.keyCode === 39) {
+        this.onRightKeyDown();
+      }
+    };
+
+    let resizeDebounce;
+
+    window.onresize = () => {
+      clearTimeout(resizeDebounce);
+      resizeDebounce = setTimeout(() => {
+        this.imgInit();
+      }, 200);
+    };
   }
 
   componentDidMount() {
@@ -25,6 +44,26 @@ class ImageViewer extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.currentImg !== prevProps.currentImg) {
       this.initialize();
+    }
+  }
+
+  componentWillUnmount() {
+    document.onkeydown = null;
+  }
+
+  onResize = () => {
+    this.imgInit();
+  }
+
+  onLeftKeyDown = () => {
+    if (this.props.currentImg !== 1) {
+      this.props.actions.prevImage();
+    }
+  }
+
+  onRightKeyDown = () => {
+    if (this.props.currentImg !== this.props.images.length) {
+      this.props.actions.nextImage();
     }
   }
 
@@ -94,9 +133,9 @@ class ImageViewer extends Component {
       }
 
       if (rangeY < 0) {
-        top = core.moveTop(rangeY, box.top, curentTop, this.img.height, window.innerHeight);
+        top = core.moveTop(rangeY, box.top, curentTop, this.img.height, window.innerHeight - 40, 40);
       } else {
-        top = core.moveBottom(rangeY, box.bottom, curentTop, this.img.height, window.innerHeight);
+        top = core.moveBottom(rangeY, box.bottom, curentTop, this.img.height, window.innerHeight - 40, 40);
       }
 
       // main
@@ -154,7 +193,7 @@ class ImageViewer extends Component {
       height: this.img.naturalHeight,
     };
 
-    const newImg = core.adjust(img, window.innerWidth, window.innerHeight);
+    const newImg = core.adjust(img, window.innerWidth, window.innerHeight - 40, 40);
 
     // main
     this.img.style.width = px(newImg.width);
@@ -191,28 +230,45 @@ class ImageViewer extends Component {
   }
 
   render() {
-    const { images, currentImg, loaded, initial, scale, actions } = this.props;
+    const { galleryTitle, images, currentImg, loaded, scale, actions } = this.props;
 
     return (
       <div className={css.overlay}>
-        <div style={{ position: 'absolute', color: 'red', zIndex: 100550 }}>
-          {initial.scale}, {scale},
-          <button className="btn btn-secondary" type="button" onClick={this.closeOverlay}>Close</button>{' '}
-          <button
-            className="btn btn-primary"
-            onClick={actions.prevImage}
-            disabled={currentImg === 1}
-          >
-            Prev
+        <div className={css.topbar}>
+          <button className={classes(css.closeBtn, 'btn btn-link')} type="button" onClick={this.closeOverlay}>
+            <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
           </button>
+          <div className={css.title}>
+            {galleryTitle}, {currentImg} / {images.length}
+          </div>
+          <div className={css.scale}>
+            {scale}%
+          </div>
+          <a
+            href={`/img/comics/${images[currentImg - 1].large}`}
+            className={classes(css.downloadBtn, 'btn btn-link')}
+            title="Скачать в высоком разрешении"
+          >
+            <i className="fa fa-download fa-lg" aria-hidden="true" />
+          </a>
+        </div>
+
+        <div className={css.navigation}>
+          <div className={css.navButtonContainer}>
+            {currentImg !== 1 &&
+              <button className={classes(css.navButton, 'btn btn-link')} onClick={actions.prevImage}>
+                <i className="fa fa-angle-left fa-3x" aria-hidden="true" />
+              </button>
+            }
+          </div>
           {' '}
-          <button
-            className="btn btn-primary"
-            onClick={actions.nextImage}
-            disabled={currentImg === images.length}
-          >
-            Next
-          </button>
+          <div className={css.navButtonContainer}>
+            {currentImg !== images.length &&
+              <button className={classes(css.navButton, 'btn btn-link')} onClick={actions.nextImage}>
+                <i className="fa fa-angle-right fa-3x" aria-hidden="true" />
+              </button>
+            }
+          </div>
         </div>
 
         {!loaded &&
@@ -251,6 +307,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
+  galleryTitle: PropTypes.string.isRequired,
   images: PropTypes.arrayOf(PropTypes.shape({
     small: PropTypes.string.isRequired,
     medium: PropTypes.string.isRequired,
@@ -270,6 +327,8 @@ ImageViewer.propTypes = {
     setImageLoaded: PropTypes.func.isRequired,
     setInitialValues: PropTypes.func.isRequired,
     setCurrentScale: PropTypes.func.isRequired,
+    prevImage: PropTypes.func.isRequired,
+    nextImage: PropTypes.func.isRequired,
   }).isRequired,
 };
 
