@@ -236,7 +236,7 @@ class ImageViewer extends Component {
     return (
       <div className={css.overlay}>
         <div className={css.topbar}>
-          <button className={classes(css.closeBtn, 'btn btn-link')} type="button" onClick={this.closeOverlay}>
+          <button className={classes(css.closeBtn, 'btn btn-link')} type="button" onClick={this.closeOverlay} title="Назад">
             <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
           </button>
           <div className={css.title}>

@@ -1,8 +1,8 @@
 # Glitch-and-hungover
 
-Small project about comics "Glitch & Hungover", published in russian magazine "PL: Computers" in ~1999-2001.
+Small project about comics "Glitch & Hungover", published in russian magazine "PL: Computers" in ~1999–2001.
 
-http://glitch-hungover.comiket.ru
+http://glitch-hungover.comiket.ru - read comics online or download in high resolution!
 
 Project includes custom JavaScript library for image manipulation, which can help to:
 1) Adjust image size with proper aspect ratio. 
