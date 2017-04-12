@@ -1,7 +1,6 @@
 const prefix = 'ImageViewer';
 
 const ADD_IMAGES = `${prefix}/ADD_IMAGES`;
-const REMOVE_IMAGES = `${prefix}/REMOVE_IMAGES`;
 const SHOW_OVERLAY = `${prefix}/SHOW_OVERLAY`;
 const HIDE_OVERLAY = `${prefix}/HIDE_OVERLAY`;
 const SET_GALLERY_ID = `${prefix}/SET_GALLERY_ID`;
@@ -17,12 +16,6 @@ export function addImages(images, imagePosition) {
     type: ADD_IMAGES,
     images,
     imagePosition,
-  };
-}
-
-export function removeImages() {
-  return {
-    type: REMOVE_IMAGES,
   };
 }
 
@@ -115,9 +108,6 @@ export default function reducer(state = defaultState, action) {
 
     case ADD_IMAGES:
       return { ...state, images: action.images, currentImg: action.imagePosition };
-
-    case REMOVE_IMAGES:
-      return { ...state, images: [], currentImg: '' };
 
     case SET_IMAGE_LOADED:
       return { ...state, loaded: true };

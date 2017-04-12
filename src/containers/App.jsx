@@ -8,6 +8,9 @@ const App = () => {
     <div key={elem.title}>
       <div className={css.header}>
         <h4 id={elem.anchor}>{elem.title}</h4>
+        <a className={css.anchor} href={`#${elem.anchor}`}>
+          <i className="fa fa-link fa-lg" aria-hidden="true" />
+        </a>
         <p className={css.date}>{elem.date}</p>
       </div>
       <hr className={css.hr} />
@@ -21,9 +24,9 @@ const App = () => {
         <div className={css.main}>
           <p>
             Сайт посвящен комиксу «Глюк &amp; Отходняк», публиковавшемуся в журнале
-            ПЛ: Компьютеры в конце 90х - начале 2000х годов.
+            ПЛ: Компьютеры в конце 90х – начале 2000х годов.
           </p>
-          <p>Автор - А. Нимов. Производство студии ТЕМА.</p>
+          <p>Автор — А. Нимов. Производство студии ТЕМА.</p>
           <br />
           {formattedData}
         </div>

@@ -87,7 +87,7 @@ module.exports = {
 
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Комикс Глюк и Отходняк',
+      title: 'Комикс «Глюк и Отходняк»',
       template: './src/index.ejs',
       chunks: ['vendor', 'app'],
       baseurl: BASE_URL,

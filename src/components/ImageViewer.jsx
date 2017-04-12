@@ -15,7 +15,6 @@ class ImageViewer extends Component {
   constructor(props) {
     super(props);
     this.cursor = { top: 0, left: 0 };
-    this.state = { rnd: Math.floor(Math.random() * (2000 - 1000)) + 1000 };
     document.body.classList.add('noscroll');
 
     document.onkeydown = (event) => {
@@ -230,7 +229,9 @@ class ImageViewer extends Component {
   }
 
   render() {
-    const { galleryTitle, images, currentImg, loaded, scale, actions } = this.props;
+    const { galleryTitle, galleryId, images, currentImg, loaded, scale, actions } = this.props;
+
+    const fullImgExt = images[currentImg - 1].large.split('.').pop();
 
     return (
       <div className={css.overlay}>
@@ -248,6 +249,9 @@ class ImageViewer extends Component {
             href={`/img/comics/${images[currentImg - 1].large}`}
             className={classes(css.downloadBtn, 'btn btn-link')}
             title="Скачать в высоком разрешении"
+            download={`${galleryId}_${currentImg}.${fullImgExt}`}
+            target="_blank"
+            rel="noopener noreferrer"
           >
             <i className="fa fa-download fa-lg" aria-hidden="true" />
           </a>
@@ -307,6 +311,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
+  galleryId: PropTypes.string.isRequired,
   galleryTitle: PropTypes.string.isRequired,
   images: PropTypes.arrayOf(PropTypes.shape({
     small: PropTypes.string.isRequired,

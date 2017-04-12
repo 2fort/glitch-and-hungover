@@ -8,7 +8,24 @@ export const hr = style({
   borderTop: '1px solid rgba(0,0,0,.1)',
 });
 
-export const header = style(csstips.horizontal, csstips.betweenJustified);
+export const anchor = style({
+  marginRight: 'auto',
+  marginLeft: '7px',
+});
+
+export const header = style(csstips.horizontal, csstips.betweenJustified, {
+  $nest: {
+    '& a': {
+      visibility: 'hidden',
+    },
+    '&:hover': {
+      '& a': {
+        visibility: 'visible',
+      },
+    },
+  },
+});
+
 export const date = style({ textAlign: 'right' });
 
 export const main = style({ marginTop: '2rem' });

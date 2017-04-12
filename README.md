@@ -1,1 +1,10 @@
-Readme will be published later.
+# Glitch-and-hungover
+
+Small project about comics "Glitch & Hungover", published in russian magazine "PL: Computers" in ~1999-2001.
+
+http://glitch-hungover.comiket.ru
+
+Project includes custom JavaScript library for image manipulation, which can help to:
+1) Adjust image size with proper aspect ratio. 
+2) Zoom under cursor.
+3) Move image within the boundaries of the provided rectangle.
