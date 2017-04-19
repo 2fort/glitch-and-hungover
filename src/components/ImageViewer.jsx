@@ -103,6 +103,19 @@ class ImageViewer extends Component {
     this.props.actions.reset();
   }
 
+  onDoubleClick = (e) => {
+    const img = this.getCurrentImgProperties();
+    const newImg = (() => {
+      if (this.props.scale === 100.00) {
+        return core.zoom(e, img, { min: true });
+      }
+
+      return core.zoom(e, img, { max: true });
+    })();
+
+    this.applyZoom(newImg);
+  }
+
   onResize = () => {
     this.imgInit();
   }
@@ -126,17 +139,7 @@ class ImageViewer extends Component {
   onWheel = (e) => {
     const { scale, initial } = this.props;
 
-    const img = {
-      initialBox: this.props.initial.box,
-      initialWidth: this.props.initial.width,
-      initialHeight: this.props.initial.height,
-      naturalWidth: this.img.naturalWidth,
-      naturalHeight: this.img.naturalHeight,
-      currentWidth: this.img.width,
-      currentHeight: this.img.height,
-      currentLeft: rPx(this.img.style.left),
-      currentTop: rPx(this.img.style.top),
-    };
+    const img = this.getCurrentImgProperties();
 
     if ((scale === 100.00 && e.deltaY < 0) || (scale === initial.scale && e.deltaY > 0)) {
       return;
@@ -144,21 +147,7 @@ class ImageViewer extends Component {
 
     const newImg = core.zoom(e, img);
 
-    // main
-    this.img.style.width = px(newImg.width);
-    this.img.style.height = px(newImg.height);
-    this.img.style.left = px(newImg.left);
-    this.img.style.top = px(newImg.top);
-
-    // preview
-    if (this.preview) {
-      this.preview.style.width = px(newImg.width);
-      this.preview.style.height = px(newImg.height);
-      this.preview.style.left = px(newImg.left);
-      this.preview.style.top = px(newImg.top);
-    }
-
-    this.props.actions.setCurrentScale(this.scale());
+    this.applyZoom(newImg);
   }
 
   onMouseDown = (e) => {
@@ -230,7 +219,37 @@ class ImageViewer extends Component {
     };
   }
 
+  getCurrentImgProperties = () => ({
+    initialBox: this.props.initial.box,
+    initialWidth: this.props.initial.width,
+    initialHeight: this.props.initial.height,
+    naturalWidth: this.img.naturalWidth,
+    naturalHeight: this.img.naturalHeight,
+    currentWidth: this.img.width,
+    currentHeight: this.img.height,
+    currentLeft: rPx(this.img.style.left),
+    currentTop: rPx(this.img.style.top),
+  });
+
   scale = () => Number(((this.img.width / this.img.naturalWidth) * 100).toFixed(2));
+
+  applyZoom = (newImg) => {
+    // main
+    this.img.style.width = px(newImg.width);
+    this.img.style.height = px(newImg.height);
+    this.img.style.left = px(newImg.left);
+    this.img.style.top = px(newImg.top);
+
+    // preview
+    if (this.preview) {
+      this.preview.style.width = px(newImg.width);
+      this.preview.style.height = px(newImg.height);
+      this.preview.style.left = px(newImg.left);
+      this.preview.style.top = px(newImg.top);
+    }
+
+    this.props.actions.setCurrentScale(this.scale());
+  }
 
   initialize = () => {
     const wait = setInterval(() => {
@@ -362,6 +381,7 @@ class ImageViewer extends Component {
           onLoad={this.loadingCompleted}
           onWheel={this.onWheel}
           onMouseDown={this.onMouseDown}
+          onDoubleClick={this.onDoubleClick}
         />
       </div>
     );
