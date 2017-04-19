@@ -1,10 +1,20 @@
-import React from 'react';
+import React, { Component, PropTypes } from 'react';
+import { withRouter } from 'react-router';
 import data from '../json/data.json';
 import * as css from './App.style';
 import Gallery from '../components/Gallery';
 
-const App = () => {
-  const formattedData = Object.values(data).map(elem => (
+class App extends Component {
+  componentDidMount() {
+    if (this.props.location.hash) {
+      const el = document.getElementById(this.props.location.hash.substring(1));
+
+      if (!el) return;
+      el.scrollIntoView();
+    }
+  }
+
+  composeGalleries = () => Object.values(data).map(elem => (
     <div key={elem.title}>
       <div className={css.header}>
         <h4 id={elem.anchor}>{elem.title}</h4>
@@ -18,8 +28,8 @@ const App = () => {
     </div>
   ));
 
-  return (
-    <div>
+  render() {
+    return (
       <div className="container">
         <div className={css.main}>
           <p>
@@ -28,11 +38,17 @@ const App = () => {
           </p>
           <p>Автор — А. Нимов. Производство студии ТЕМА.</p>
           <br />
-          {formattedData}
+          {this.composeGalleries()}
         </div>
       </div>
-    </div>
-  );
+    );
+  }
+}
+
+App.propTypes = {
+  location: PropTypes.shape({
+    hash: PropTypes.string,
+  }).isRequired,
 };
 
-export default App;
+export default withRouter(App);

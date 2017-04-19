@@ -1,15 +1,13 @@
 const prefix = 'ImageViewer';
 
 const ADD_IMAGES = `${prefix}/ADD_IMAGES`;
-const SHOW_OVERLAY = `${prefix}/SHOW_OVERLAY`;
-const HIDE_OVERLAY = `${prefix}/HIDE_OVERLAY`;
+const RESET = `${prefix}/RESET`;
 const SET_GALLERY_ID = `${prefix}/SET_GALLERY_ID`;
 const SET_GALLERY_TITLE = `${prefix}/SET_GALLERY_TITLE`;
 const SET_IMAGE_LOADED = `${prefix}/SET_IMAGE_LOADED`;
 const SET_INITIAL_VALUES = `${prefix}/SET_INITIAL_VALUES`;
 const SET_CURRENT_SCALE = `${prefix}/SET_CURRENT_SCALE`;
-const PREVIOUS_IMAGE = `${prefix}/PREVIOUS_IMAGE`;
-const NEXT_IMAGE = `${prefix}/NEXT_IMAGE`;
+const SET_CURRENT_IMAGE = `${prefix}/SET_CURRENT_IMAGE`;
 
 export function addImages(images, imagePosition) {
   return {
@@ -19,15 +17,9 @@ export function addImages(images, imagePosition) {
   };
 }
 
-export function showOverlay() {
+export function reset() {
   return {
-    type: SHOW_OVERLAY,
-  };
-}
-
-export function hideOverlay() {
-  return {
-    type: HIDE_OVERLAY,
+    type: RESET,
   };
 }
 
@@ -70,15 +62,10 @@ export function setCurrentScale(scale) {
   };
 }
 
-export function prevImage() {
+export function setCurrentImage(page) {
   return {
-    type: PREVIOUS_IMAGE,
-  };
-}
-
-export function nextImage() {
-  return {
-    type: NEXT_IMAGE,
+    type: SET_CURRENT_IMAGE,
+    page,
   };
 }
 
@@ -112,10 +99,7 @@ export default function reducer(state = defaultState, action) {
     case SET_IMAGE_LOADED:
       return { ...state, loaded: true };
 
-    case SHOW_OVERLAY:
-      return { ...state, visible: true };
-
-    case HIDE_OVERLAY:
+    case RESET:
       return { ...defaultState };
 
     case SET_INITIAL_VALUES:
@@ -124,11 +108,8 @@ export default function reducer(state = defaultState, action) {
     case SET_CURRENT_SCALE:
       return { ...state, scale: action.scale };
 
-    case PREVIOUS_IMAGE:
-      return { ...state, currentImg: state.currentImg - 1, loaded: false };
-
-    case NEXT_IMAGE:
-      return { ...state, currentImg: state.currentImg + 1, loaded: false };
+    case SET_CURRENT_IMAGE:
+      return { ...state, currentImg: action.page, loaded: false };
 
     default:
       return state;

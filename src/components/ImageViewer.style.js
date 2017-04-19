@@ -63,7 +63,7 @@ const buttons = {
 };
 
 export const closeBtn = style(buttons, {
-  padding: '7px 10px 7px 15px',
+  padding: '8px 10px 7px 15px',
   marginRight: 'auto',
 });
 

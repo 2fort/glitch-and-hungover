@@ -3,6 +3,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { px } from 'csx';
 import { classes } from 'typestyle';
+import { Link } from 'react-router-dom';
+import { withRouter } from 'react-router';
+import Fetch404 from './404/Fetch404';
+import data from '../json/data.json';
 import * as ownActions from './ImageViewer.duck';
 import * as css from './ImageViewer.style';
 import * as core from './ImageViewer.core';
@@ -11,10 +15,40 @@ function rPx(string) {
   return Number(string.slice(0, -2));
 }
 
+const ProxyRoute = (props) => {
+  const { issue, page } = props.match.params;
+  const properPage = page || 1;
+
+  const cursor = Object.keys(data).filter(comics => data[comics].anchor === issue);
+  const comics = data[cursor[0]];
+  const image = data[cursor[0]] && comics.files[properPage - 1];
+
+  if (!comics || !image) {
+    return <Fetch404>Страница не найдена!</Fetch404>;
+  }
+
+  return (
+    <ImageViewer {...props} comics={comics} page={Number(properPage)} />
+  );
+};
+
+ProxyRoute.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      issue: PropTypes.string.isRequired,
+      page: PropTypes.string,
+    }).isRequired,
+  }).isRequired,
+};
+
 class ImageViewer extends Component {
   constructor(props) {
     super(props);
     this.cursor = { top: 0, left: 0 };
+    this.state = {
+      isModal: this.props.location.state && this.props.location.state.modal,
+    };
+
     document.body.classList.add('noscroll');
 
     document.onkeydown = (event) => {
@@ -23,6 +57,9 @@ class ImageViewer extends Component {
       }
       if (event.keyCode === 39) {
         this.onRightKeyDown();
+      }
+      if (event.keyCode === 27) {
+        this.onEscKeyDown();
       }
     };
 
@@ -37,7 +74,21 @@ class ImageViewer extends Component {
   }
 
   componentDidMount() {
-    this.initialize();
+    const { comics, page, match: { params: { page: paramsPage } } } = this.props;
+
+    this.props.actions.setGalleryId(comics.anchor);
+    this.props.actions.setGalleryTitle(comics.title);
+    this.props.actions.addImages(comics.files, page);
+
+    if (!paramsPage) {
+      this.props.history.replace(`/${comics.anchor}/1`);
+    }
+  }
+
+  componentWillUpdate(nextProps) {
+    if (this.props.match.params.page !== nextProps.match.params.page) {
+      this.props.actions.setCurrentImage(Number(nextProps.match.params.page));
+    }
   }
 
   componentDidUpdate(prevProps) {
@@ -48,6 +99,8 @@ class ImageViewer extends Component {
 
   componentWillUnmount() {
     document.onkeydown = null;
+    document.body.classList.remove('noscroll');
+    this.props.actions.reset();
   }
 
   onResize = () => {
@@ -56,14 +109,18 @@ class ImageViewer extends Component {
 
   onLeftKeyDown = () => {
     if (this.props.currentImg !== 1) {
-      this.props.actions.prevImage();
+      this.props.history.replace(`/${this.props.galleryId}/${this.props.currentImg - 1}`, { modal: this.state.isModal });
     }
   }
 
   onRightKeyDown = () => {
     if (this.props.currentImg !== this.props.images.length) {
-      this.props.actions.nextImage();
+      this.props.history.replace(`/${this.props.galleryId}/${this.props.currentImg + 1}`, { modal: this.state.isModal });
     }
+  }
+
+  onEscKeyDown = () => {
+    this.props.history.push('/');
   }
 
   onWheel = (e) => {
@@ -219,26 +276,23 @@ class ImageViewer extends Component {
     this.props.actions.setCurrentScale(scale);
   }
 
-  closeOverlay = () => {
-    document.body.classList.remove('noscroll');
-    this.props.actions.hideOverlay();
-  }
-
   loadingCompleted = () => {
     this.props.actions.setImageLoaded();
   }
 
   render() {
-    const { galleryTitle, galleryId, images, currentImg, loaded, scale, actions } = this.props;
+    const { galleryTitle, galleryId, images, currentImg, loaded, scale } = this.props;
+
+    if (!currentImg) return null;
 
     const fullImgExt = images[currentImg - 1].large.split('.').pop();
 
     return (
       <div className={css.overlay}>
         <div className={css.topbar}>
-          <button className={classes(css.closeBtn, 'btn btn-link')} type="button" onClick={this.closeOverlay} title="Назад">
+          <Link to="/" className={classes(css.closeBtn, 'btn btn-link')} title="Назад">
             <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
-          </button>
+          </Link>
           <div className={css.title}>
             {galleryTitle}, {currentImg} / {images.length}
           </div>
@@ -260,17 +314,31 @@ class ImageViewer extends Component {
         <div className={css.navigation}>
           <div className={css.navButtonContainer}>
             {currentImg !== 1 &&
-              <button className={classes(css.navButton, 'btn btn-link')} onClick={actions.prevImage}>
+              <Link
+                replace
+                to={{
+                  pathname: `/${galleryId}/${currentImg - 1}`,
+                  state: { modal: this.state.isModal },
+                }}
+                className={classes(css.navButton, 'btn btn-link')}
+              >
                 <i className="fa fa-angle-left fa-3x" aria-hidden="true" />
-              </button>
+              </Link>
             }
           </div>
           {' '}
           <div className={css.navButtonContainer}>
             {currentImg !== images.length &&
-              <button className={classes(css.navButton, 'btn btn-link')} onClick={actions.nextImage}>
+              <Link
+                replace
+                to={{
+                  pathname: `/${galleryId}/${currentImg + 1}`,
+                  state: { modal: this.state.isModal },
+                }}
+                className={classes(css.navButton, 'btn btn-link')}
+              >
                 <i className="fa fa-angle-right fa-3x" aria-hidden="true" />
-              </button>
+              </Link>
             }
           </div>
         </div>
@@ -311,6 +379,30 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
+  // props from hoc
+  comics: PropTypes.shape({
+    title: PropTypes.string.isRequired,
+    date: PropTypes.string.isRequired,
+    anchor: PropTypes.string.isRequired,
+    files: PropTypes.arrayOf(PropTypes.object).isRequired,
+  }).isRequired,
+  page: PropTypes.number.isRequired,
+  // props from react-router
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      page: PropTypes.string,
+    }).isRequired,
+  }).isRequired,
+  history: PropTypes.shape({
+    replace: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired,
+  }).isRequired,
+  location: PropTypes.shape({
+    state: PropTypes.shape({
+      modal: PropTypes.bool,
+    }),
+  }).isRequired,
+  // props from duck
   galleryId: PropTypes.string.isRequired,
   galleryTitle: PropTypes.string.isRequired,
   images: PropTypes.arrayOf(PropTypes.shape({
@@ -328,13 +420,15 @@ ImageViewer.propTypes = {
   }).isRequired,
   scale: PropTypes.number.isRequired,
   actions: PropTypes.shape({
-    hideOverlay: PropTypes.func.isRequired,
+    setGalleryId: PropTypes.func.isRequired,
+    setGalleryTitle: PropTypes.func.isRequired,
+    addImages: PropTypes.func.isRequired,
+    reset: PropTypes.func.isRequired,
     setImageLoaded: PropTypes.func.isRequired,
     setInitialValues: PropTypes.func.isRequired,
     setCurrentScale: PropTypes.func.isRequired,
-    prevImage: PropTypes.func.isRequired,
-    nextImage: PropTypes.func.isRequired,
+    setCurrentImage: PropTypes.func.isRequired,
   }).isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(ImageViewer);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(ProxyRoute));
