@@ -27,6 +27,8 @@ module.exports = {
       'csstips',
       'csx',
       'typestyle',
+      'react-router',
+      'react-router-dom',
     ],
     app: ['./src/app.jsx'],
   },
