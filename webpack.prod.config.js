@@ -3,6 +3,8 @@ const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
 
+const commitHash = require('child_process').execSync('git rev-parse --short HEAD').toString();
+
 const BASE_URL = process.env.BASE_URL || 'http://glitch-hungover.dev';
 
 function chunksSortModeExp(chunk1, chunk2, orders) {
@@ -93,6 +95,7 @@ module.exports = {
       template: './src/index.ejs',
       chunks: ['vendor', 'app'],
       baseurl: BASE_URL,
+      commitHash,
       inject: 'body',
       filename: 'index.html',
       chunksSortMode: (chunk1, chunk2) => {

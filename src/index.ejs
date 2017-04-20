@@ -36,7 +36,12 @@
     <div class="bg-inverse text-white footer">
       <div class="container">
         Сайт создан в 2017 году<br>
-        <i class="fa fa-github" aria-hidden="true"></i> <a class="text-info" href="https://github.com/2fort">2fort</a>
+        <i class="fa fa-github" aria-hidden="true"></i> 
+        <a class="text-info" href="https://github.com/2fort/glitch-and-hungover">2fort</a>, 
+        build: 
+        <a class="text-info" href="https://github.com/2fort/glitch-and-hungover/commits/master">
+          <%= htmlWebpackPlugin.options.commitHash %>
+        </a>
       </div>
     </div>
     <%=htmlWebpackPlugin.files.webpackManifest%>

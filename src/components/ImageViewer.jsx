@@ -1,4 +1,5 @@
-import React, { Component, PropTypes } from 'react';
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { px } from 'csx';
@@ -160,52 +161,7 @@ class ImageViewer extends Component {
       return;
     }
 
-    document.onmousemove = (event) => {
-      const rangeX = event.clientX - this.cursor.left;
-      const rangeY = event.clientY - this.cursor.top;
-      const currentLeft = rPx(this.img.style.left);
-      const curentTop = rPx(this.img.style.top);
-
-      const box = this.img.getBoundingClientRect();
-
-      let left = 0;
-      let top = 0;
-
-      if (rangeX < 0) {
-        left = core.moveLeft(rangeX, box.left, currentLeft, this.img.width, window.innerWidth);
-      } else {
-        left = core.moveRight(rangeX, box.right, currentLeft, this.img.width, window.innerWidth);
-      }
-
-      if (rangeY < 0) {
-        top = core.moveTop(rangeY, box.top, curentTop, this.img.height, window.innerHeight - 40, 40);
-      } else {
-        top = core.moveBottom(rangeY, box.bottom, curentTop, this.img.height, window.innerHeight - 40, 40);
-      }
-
-      // main
-      if (currentLeft !== left) {
-        this.img.style.left = px(left);
-      }
-
-      if (curentTop !== top) {
-        this.img.style.top = px(top);
-      }
-
-      // preview
-      if (this.preview) {
-        if (currentLeft !== left) {
-          this.preview.style.left = px(left);
-        }
-
-        if (curentTop !== top) {
-          this.preview.style.top = px(top);
-        }
-      }
-
-      this.cursor.left = event.clientX;
-      this.cursor.top = event.clientY;
-    };
+    document.onmousemove = this.onMouseMove;
 
     this.img.onmouseup = () => {
       document.onmousemove = null;
@@ -217,6 +173,76 @@ class ImageViewer extends Component {
       this.img.onmouseup = null;
       document.onmouseup = null;
     };
+  }
+
+  onMouseMove = (event) => {
+    console.log(event);
+
+    const rangeX = event.clientX - this.cursor.left;
+    const rangeY = event.clientY - this.cursor.top;
+    const currentLeft = rPx(this.img.style.left);
+    const curentTop = rPx(this.img.style.top);
+
+    const box = this.img.getBoundingClientRect();
+
+    let left = 0;
+    let top = 0;
+
+    if (rangeX < 0) {
+      left = core.moveLeft(rangeX, box.left, currentLeft, this.img.width, window.innerWidth);
+    } else {
+      left = core.moveRight(rangeX, box.right, currentLeft, this.img.width, window.innerWidth);
+    }
+
+    if (rangeY < 0) {
+      top = core.moveTop(rangeY, box.top, curentTop, this.img.height, window.innerHeight - 40, 40);
+    } else {
+      top = core.moveBottom(rangeY, box.bottom, curentTop, this.img.height, window.innerHeight - 40, 40);
+    }
+
+    // main
+    if (currentLeft !== left) {
+      this.img.style.left = px(left);
+    }
+
+    if (curentTop !== top) {
+      this.img.style.top = px(top);
+    }
+
+    // preview
+    if (this.preview) {
+      if (currentLeft !== left) {
+        this.preview.style.left = px(left);
+      }
+
+      if (curentTop !== top) {
+        this.preview.style.top = px(top);
+      }
+    }
+
+    this.cursor.left = event.clientX;
+    this.cursor.top = event.clientY;
+  }
+
+  onTouchStart = (e) => {
+    // console.log('onTouchStart', e.touches[0]);
+    const touch = e.touches[0];
+    this.cursor.left = touch.clientX;
+    this.cursor.top = touch.clientY;
+  }
+
+  onTouchMove = (e) => {
+    console.log('onTouchMove', e.touches[0]);
+
+    if (this.scale() === this.props.initial.scale) {
+      return;
+    }
+
+    this.onMouseMove(e.touches[0]);
+  }
+
+  onTouchEnd = (e) => {
+    console.log('onTouchEnd', e.touches[0]);
   }
 
   getCurrentImgProperties = () => ({
@@ -376,12 +402,15 @@ class ImageViewer extends Component {
           className={css.fullimg}
           alt={currentImg}
           key={`${currentImg} full`}
-          src={`/img/comics/${images[currentImg - 1].medium}`}
+          src={`/img/comics/${images[currentImg - 1].large}`}
           ref={(img) => { this.img = img; }}
           onLoad={this.loadingCompleted}
           onWheel={this.onWheel}
           onMouseDown={this.onMouseDown}
           onDoubleClick={this.onDoubleClick}
+          onTouchStart={this.onTouchStart}
+          onTouchMove={this.onTouchMove}
+          onTouchEnd={this.onTouchEnd}
         />
       </div>
     );

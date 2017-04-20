@@ -1,6 +1,8 @@
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+const commitHash = require('child_process').execSync('git rev-parse --short HEAD').toString();
+
 const BASE_URL = 'http://localhost:3001';
 
 module.exports = {
@@ -56,12 +58,13 @@ module.exports = {
 
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Глюк и Отходняк',
+      title: 'Комикс «Глюк и Отходняк»',
       template: './src/index.ejs',
       chunks: ['dev', 'app'],
       inject: 'body',
       filename: 'index.html',
       baseurl: BASE_URL,
+      commitHash,
     }),
     new webpack.DefinePlugin({
       'process.env': {
