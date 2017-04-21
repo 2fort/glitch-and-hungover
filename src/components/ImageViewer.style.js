@@ -1,5 +1,5 @@
 import { style } from 'typestyle';
-import { black, white } from 'csx';
+import { white } from 'csx';
 import * as csstips from 'csstips';
 
 export const overlay = style(csstips.vertical, {
@@ -8,8 +8,8 @@ export const overlay = style(csstips.vertical, {
   position: 'fixed',
   top: 0,
   left: 0,
-  backgroundColor: black.toHexString(),
   zIndex: 100500,
+  visibility: 'visible',
 });
 
 export const topbar = style(csstips.horizontal, {

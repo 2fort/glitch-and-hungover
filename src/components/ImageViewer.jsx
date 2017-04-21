@@ -12,10 +12,6 @@ import * as ownActions from './ImageViewer.duck';
 import * as css from './ImageViewer.style';
 import * as core from './ImageViewer.core';
 
-function rPx(string) {
-  return Number(string.slice(0, -2));
-}
-
 const ProxyRoute = (props) => {
   const { issue, page } = props.match.params;
   const properPage = page || 1;
@@ -46,11 +42,9 @@ class ImageViewer extends Component {
   constructor(props) {
     super(props);
     this.cursor = { top: 0, left: 0 };
-    this.state = {
-      isModal: this.props.location.state && this.props.location.state.modal,
-    };
+    this.imgParams = { top: 0, left: 0 };
 
-    document.body.classList.add('noscroll');
+    document.body.classList.add('overlay-active');
 
     document.onkeydown = (event) => {
       if (event.keyCode === 37) {
@@ -69,7 +63,9 @@ class ImageViewer extends Component {
     window.onresize = () => {
       clearTimeout(resizeDebounce);
       resizeDebounce = setTimeout(() => {
-        this.imgInit();
+        if (this.props.scale === this.props.initial.scale) {
+          this.imgInit();
+        }
       }, 200);
     };
   }
@@ -100,7 +96,8 @@ class ImageViewer extends Component {
 
   componentWillUnmount() {
     document.onkeydown = null;
-    document.body.classList.remove('noscroll');
+    document.body.classList.remove('overlay-active');
+
     this.props.actions.reset();
   }
 
@@ -123,13 +120,13 @@ class ImageViewer extends Component {
 
   onLeftKeyDown = () => {
     if (this.props.currentImg !== 1) {
-      this.props.history.replace(`/${this.props.galleryId}/${this.props.currentImg - 1}`, { modal: this.state.isModal });
+      this.props.history.replace(`/${this.props.galleryId}/${this.props.currentImg - 1}`, { modal: this.props.modal });
     }
   }
 
   onRightKeyDown = () => {
     if (this.props.currentImg !== this.props.images.length) {
-      this.props.history.replace(`/${this.props.galleryId}/${this.props.currentImg + 1}`, { modal: this.state.isModal });
+      this.props.history.replace(`/${this.props.galleryId}/${this.props.currentImg + 1}`, { modal: this.props.modal });
     }
   }
 
@@ -176,12 +173,10 @@ class ImageViewer extends Component {
   }
 
   onMouseMove = (event) => {
-    console.log(event);
-
     const rangeX = event.clientX - this.cursor.left;
     const rangeY = event.clientY - this.cursor.top;
-    const currentLeft = rPx(this.img.style.left);
-    const curentTop = rPx(this.img.style.top);
+    const currentLeft = this.imgParams.left;
+    const curentTop = this.imgParams.top;
 
     const box = this.img.getBoundingClientRect();
 
@@ -201,24 +196,19 @@ class ImageViewer extends Component {
     }
 
     // main
-    if (currentLeft !== left) {
-      this.img.style.left = px(left);
-    }
-
-    if (curentTop !== top) {
-      this.img.style.top = px(top);
+    if (currentLeft !== left || curentTop !== top) {
+      this.img.style.transform = `translate3d(${left}px, ${top}px, 0)`;
     }
 
     // preview
-    if (this.preview) {
-      if (currentLeft !== left) {
-        this.preview.style.left = px(left);
-      }
-
-      if (curentTop !== top) {
-        this.preview.style.top = px(top);
+    if (!this.props.loaded) {
+      if (currentLeft !== left || curentTop !== top) {
+        this.preview.style.transform = `translate3d(${left}px, ${top}px, 0)`;
       }
     }
+
+    this.imgParams.left = left;
+    this.imgParams.top = top;
 
     this.cursor.left = event.clientX;
     this.cursor.top = event.clientY;
@@ -253,8 +243,8 @@ class ImageViewer extends Component {
     naturalHeight: this.img.naturalHeight,
     currentWidth: this.img.width,
     currentHeight: this.img.height,
-    currentLeft: rPx(this.img.style.left),
-    currentTop: rPx(this.img.style.top),
+    currentLeft: this.imgParams.left,
+    currentTop: this.imgParams.top,
   });
 
   scale = () => Number(((this.img.width / this.img.naturalWidth) * 100).toFixed(2));
@@ -263,17 +253,17 @@ class ImageViewer extends Component {
     // main
     this.img.style.width = px(newImg.width);
     this.img.style.height = px(newImg.height);
-    this.img.style.left = px(newImg.left);
-    this.img.style.top = px(newImg.top);
+    this.img.style.transform = `translate3d(${newImg.left}px, ${newImg.top}px, 0)`;
 
     // preview
-    if (this.preview) {
+    if (!this.props.loaded) {
       this.preview.style.width = px(newImg.width);
       this.preview.style.height = px(newImg.height);
-      this.preview.style.left = px(newImg.left);
-      this.preview.style.top = px(newImg.top);
+      this.preview.style.transform = `translate3d(${newImg.left}px, ${newImg.top}px, 0)`;
     }
 
+    this.imgParams.left = newImg.left;
+    this.imgParams.top = newImg.top;
     this.props.actions.setCurrentScale(this.scale());
   }
 
@@ -295,22 +285,20 @@ class ImageViewer extends Component {
     };
 
     const newImg = core.adjust(img, window.innerWidth, window.innerHeight - 40, 40);
+    this.imgParams.left = newImg.left;
+    this.imgParams.top = newImg.top;
 
     // main
     this.img.style.width = px(newImg.width);
     this.img.style.height = px(newImg.height);
-    this.img.style.left = px(newImg.left);
-    this.img.style.top = px(newImg.top);
-
+    this.img.style.transform = `translate3d(${newImg.left}px, ${newImg.top}px, 0)`;
     this.img.style.visibility = 'visible';
 
     // preview
-    if (this.preview) {
+    if (!this.props.loaded) {
       this.preview.style.width = px(newImg.width);
       this.preview.style.height = px(newImg.height);
-      this.preview.style.left = px(newImg.left);
-      this.preview.style.top = px(newImg.top);
-
+      this.preview.style.transform = `translate3d(${newImg.left}px, ${newImg.top}px, 0)`;
       this.preview.style.visibility = 'visible';
     }
 
@@ -323,10 +311,11 @@ class ImageViewer extends Component {
 
   loadingCompleted = () => {
     this.props.actions.setImageLoaded();
+    this.preview.style.visibility = 'hidden';
   }
 
   render() {
-    const { galleryTitle, galleryId, images, currentImg, loaded, scale } = this.props;
+    const { galleryTitle, galleryId, images, currentImg, modal, scale } = this.props;
 
     if (!currentImg) return null;
 
@@ -363,7 +352,7 @@ class ImageViewer extends Component {
                 replace
                 to={{
                   pathname: `/${galleryId}/${currentImg - 1}`,
-                  state: { modal: this.state.isModal },
+                  state: { modal },
                 }}
                 className={classes(css.navButton, 'btn btn-link')}
               >
@@ -378,7 +367,7 @@ class ImageViewer extends Component {
                 replace
                 to={{
                   pathname: `/${galleryId}/${currentImg + 1}`,
-                  state: { modal: this.state.isModal },
+                  state: { modal },
                 }}
                 className={classes(css.navButton, 'btn btn-link')}
               >
@@ -388,15 +377,13 @@ class ImageViewer extends Component {
           </div>
         </div>
 
-        {!loaded &&
-          <img
-            className={css.previewimg}
-            alt={currentImg}
-            key={`${currentImg} preview`}
-            src={`/img/comics/${images[currentImg - 1].small}`}
-            ref={(prev) => { this.preview = prev; }}
-          />
-        }
+        <img
+          className={css.previewimg}
+          alt={currentImg}
+          key={`${currentImg} preview`}
+          src={`/img/comics/${images[currentImg - 1].small}`}
+          ref={(prev) => { this.preview = prev; }}
+        />
 
         <img
           className={css.fullimg}
@@ -428,6 +415,8 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
+  // props from obj
+  modal: PropTypes.bool.isRequired,
   // props from hoc
   comics: PropTypes.shape({
     title: PropTypes.string.isRequired,
@@ -445,11 +434,6 @@ ImageViewer.propTypes = {
   history: PropTypes.shape({
     replace: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired,
-  }).isRequired,
-  location: PropTypes.shape({
-    state: PropTypes.shape({
-      modal: PropTypes.bool,
-    }),
   }).isRequired,
   // props from duck
   galleryId: PropTypes.string.isRequired,
@@ -480,4 +464,12 @@ ImageViewer.propTypes = {
   }).isRequired,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(withRouter(ProxyRoute));
+const expObj = {
+  standalone: props => <ProxyRoute modal={false} {...props} />,
+  modal: props => <ProxyRoute modal {...props} />,
+};
+
+expObj.standalone = connect(mapStateToProps, mapDispatchToProps)(withRouter(expObj.standalone));
+expObj.modal = connect(mapStateToProps, mapDispatchToProps)(withRouter(expObj.modal));
+
+export default expObj;

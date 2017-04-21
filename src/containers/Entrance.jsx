@@ -32,10 +32,10 @@ class Entrance extends Component {
       <div>
         <Switch location={isModal ? this.previousLocation : location}>
           <Route exact path="/" component={App} />
-          <Route exact path="/:issue/:page?" component={ImageViewer} />
+          <Route exact path="/:issue/:page?" component={ImageViewer.standalone} />
           <Route component={Route404} />
         </Switch>
-        {isModal ? <Route path="/:issue/:page?" component={ImageViewer} /> : null}
+        {isModal ? <Route path="/:issue/:page?" component={ImageViewer.modal} /> : null}
       </div>
     );
   }
