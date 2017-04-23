@@ -41,18 +41,18 @@ export function zoom(e, img, newOptions) {
   newImg.width = (() => {
     let width = 0;
 
-    if (options.max) return img.naturalWidth;
-    if (options.min) return img.initialWidth;
+    if (options.max) return img.initial.naturalWidth;
+    if (options.min) return img.initial.width;
 
     if (e.deltaY < 0) {
-      width = img.currentWidth + (Math.round(img.naturalWidth / 100) * options.zoomFactor);
-      if (width > img.naturalWidth) {
-        return img.naturalWidth;
+      width = img.current.width + (Math.round(img.initial.naturalWidth / 100) * options.zoomFactor);
+      if (width > img.initial.naturalWidth) {
+        return img.initial.naturalWidth;
       }
     } else {
-      width = img.currentWidth - (Math.round(img.naturalWidth / 100) * options.zoomFactor);
-      if (width < img.initialWidth) {
-        return img.initialWidth;
+      width = img.current.width - (Math.round(img.initial.naturalWidth / 100) * options.zoomFactor);
+      if (width < img.initial.width) {
+        return img.initial.width;
       }
     }
 
@@ -62,64 +62,64 @@ export function zoom(e, img, newOptions) {
   newImg.height = (() => {
     let height = 0;
 
-    if (options.max) return img.naturalHeight;
-    if (options.min) return img.initialHeight;
+    if (options.max) return img.initial.naturalHeight;
+    if (options.min) return img.initial.height;
 
     if (e.deltaY < 0) {
-      height = img.currentHeight + (Math.round(img.naturalHeight / 100) * options.zoomFactor);
-      if (height > img.naturalHeight) {
-        return img.naturalHeight;
+      height = img.current.height + (Math.round(img.initial.naturalHeight / 100) * options.zoomFactor);
+      if (height > img.initial.naturalHeight) {
+        return img.initial.naturalHeight;
       }
     } else {
-      height = img.currentHeight - (Math.round(img.naturalHeight / 100) * options.zoomFactor);
-      if (height < img.initialHeight) {
-        return img.initialHeight;
+      height = img.current.height - (Math.round(img.initial.naturalHeight / 100) * options.zoomFactor);
+      if (height < img.initial.height) {
+        return img.initial.height;
       }
     }
 
     return height;
   })();
 
-  const newWidthPercent = (newImg.width / img.currentWidth) * 100;
-  const newHeightPercent = (newImg.height / img.currentHeight) * 100;
+  const newWidthPercent = (newImg.width / img.current.width) * 100;
+  const newHeightPercent = (newImg.height / img.current.height) * 100;
 
-  const leftSide = e.clientX - img.currentLeft;
-  const topSide = e.clientY - img.currentTop;
+  const leftSide = e.clientX - img.current.left;
+  const topSide = e.clientY - img.current.top;
 
   const newLeftSide = leftSide - Math.round(leftSide * (newWidthPercent / 100));
   const newTopSide = topSide - Math.round(topSide * (newHeightPercent / 100));
 
   newImg.left = (() => {
-    const left = img.currentLeft + newLeftSide;
+    const left = img.current.left + newLeftSide;
 
     // sticky left
-    if (img.currentLeft <= img.initialBox.left && left >= img.initialBox.left) {
-      return img.initialBox.left;
+    if (img.current.left <= img.initial.box.left && left >= img.initial.box.left) {
+      return img.initial.box.left;
     }
 
     // sticky right
     const newboxRight = newImg.width + left;
-    if (img.currentWidth + img.currentLeft >= img.initialBox.right
-      && newImg.width + left <= img.initialBox.right) {
-      return left + (img.initialBox.right - newboxRight);
+    if (img.current.width + img.current.left >= img.initial.box.right
+      && newImg.width + left <= img.initial.box.right) {
+      return left + (img.initial.box.right - newboxRight);
     }
 
     return left;
   })();
 
   newImg.top = (() => {
-    const top = img.currentTop + newTopSide;
+    const top = img.current.top + newTopSide;
 
     // sticky top
-    if (img.currentTop <= img.initialBox.top && top >= img.initialBox.top) {
-      return img.initialBox.top;
+    if (img.current.top <= img.initial.box.top && top >= img.initial.box.top) {
+      return img.initial.box.top;
     }
 
     // sticky bottom
     const newboxBot = newImg.height + top;
-    if (img.currentHeight + img.currentTop >= img.initialBox.bottom
-      && newImg.height + top <= img.initialBox.bottom) {
-      return top + (img.initialBox.bottom - newboxBot);
+    if (img.current.height + img.current.top >= img.initial.box.bottom
+      && newImg.height + top <= img.initial.box.bottom) {
+      return top + (img.initial.box.bottom - newboxBot);
     }
 
     return top;

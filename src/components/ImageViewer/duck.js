@@ -9,6 +9,8 @@ const SET_INITIAL_VALUES = `${prefix}/SET_INITIAL_VALUES`;
 const SET_CURRENT_SCALE = `${prefix}/SET_CURRENT_SCALE`;
 const SET_CURRENT_IMAGE = `${prefix}/SET_CURRENT_IMAGE`;
 
+const getScale = (width, naturalWidth) => Number(((width / naturalWidth) * 100).toFixed(2));
+
 export function addImages(images, imagePosition) {
   return {
     type: ADD_IMAGES,
@@ -43,22 +45,25 @@ export function setImageLoaded() {
   };
 }
 
-export function setInitialValues(scale, box, width, height) {
+export function setInitialValues(img) {
+  const { width, height, naturalWidth, naturalHeight } = img;
   return {
     type: SET_INITIAL_VALUES,
     initial: {
-      scale,
-      box,
+      scale: getScale(width, naturalWidth),
+      box: img.getBoundingClientRect(),
       width,
       height,
+      naturalWidth,
+      naturalHeight,
     },
   };
 }
 
-export function setCurrentScale(scale) {
+export function setScale(width, naturalWidth) {
   return {
     type: SET_CURRENT_SCALE,
-    scale,
+    scale: getScale(width, naturalWidth),
   };
 }
 
@@ -81,6 +86,8 @@ const defaultState = {
     box: {},
     width: 0,
     height: 0,
+    naturalWidth: 0,
+    naturalHeight: 0,
   },
   scale: 0,
 };
@@ -103,7 +110,7 @@ export default function reducer(state = defaultState, action) {
       return { ...defaultState };
 
     case SET_INITIAL_VALUES:
-      return { ...state, initial: action.initial };
+      return { ...state, initial: action.initial, scale: action.initial.scale };
 
     case SET_CURRENT_SCALE:
       return { ...state, scale: action.scale };

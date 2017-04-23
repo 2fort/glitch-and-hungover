@@ -1,5 +1,5 @@
 import { combineReducers, createStore } from 'redux';
-import imageViewer from './components/ImageViewer.duck';
+import imageViewer from './components/ImageViewer/duck';
 
 const rootReducer = combineReducers({
   imageViewer,

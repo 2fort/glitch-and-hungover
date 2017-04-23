@@ -95,6 +95,7 @@ export const previewimg = style({
 });
 
 export const fullimg = style({
+  // transition: 'all 500ms linear',
   position: 'absolute',
   visibility: 'hidden',
   zIndex: 100502,
