@@ -3,11 +3,11 @@ import { white } from 'csx';
 import * as csstips from 'csstips';
 
 export const overlay = style(csstips.vertical, {
-  width: '100%',
-  height: '100%',
   position: 'fixed',
   top: 0,
   left: 0,
+  right: 0,
+  bottom: 0,
   zIndex: 100500,
   visibility: 'visible',
 });
@@ -88,15 +88,24 @@ export const navButtonContainer = style(csstips.vertical, csstips.centerJustifie
   height: '100%',
 });
 
+export const frame = style({
+  left: 0,
+  top: 0,
+  right: 0,
+  bottom: 0,
+  position: 'absolute',
+  zIndex: 100501,
+});
+
 export const previewimg = style({
   position: 'absolute',
   visibility: 'hidden',
-  zIndex: 100501,
+  zIndex: 100502,
 });
 
 export const fullimg = style({
   // transition: 'all 500ms linear',
   position: 'absolute',
   visibility: 'hidden',
-  zIndex: 100502,
+  zIndex: 100503,
 });

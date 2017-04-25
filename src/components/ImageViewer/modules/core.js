@@ -90,6 +90,8 @@ export function zoom(e, img, newOptions) {
   const newTopSide = topSide - Math.round(topSide * (newHeightPercent / 100));
 
   newImg.left = (() => {
+    if (options.min) return img.initial.box.left;
+
     const left = img.current.left + newLeftSide;
 
     // sticky left
@@ -108,6 +110,8 @@ export function zoom(e, img, newOptions) {
   })();
 
   newImg.top = (() => {
+    if (options.min) return img.initial.box.top;
+
     const top = img.current.top + newTopSide;
 
     // sticky top
@@ -128,7 +132,7 @@ export function zoom(e, img, newOptions) {
   return newImg;
 }
 
-export function moveLeft(rangeX, boxLeft, currentLeft, imgWidth, viewportWidth) {
+export function moveLeft(rangeX, currentLeft, imgWidth, viewportWidth) {
   let shiftX = rangeX;
   // left frame border
   let border = 0;
@@ -137,7 +141,7 @@ export function moveLeft(rangeX, boxLeft, currentLeft, imgWidth, viewportWidth) 
 
   if (imgWidth > viewportWidth) {
     border = Math.abs(viewportWidth - imgWidth);
-    rangeToBorder = border + boxLeft;
+    rangeToBorder = border + currentLeft;
 
     // stopper
     if (rangeToBorder < 0) {
@@ -150,7 +154,7 @@ export function moveLeft(rangeX, boxLeft, currentLeft, imgWidth, viewportWidth) 
     }
   } else {
     border = Math.round((viewportWidth - imgWidth) / 2);
-    rangeToBorder = boxLeft - border;
+    rangeToBorder = currentLeft - border;
 
     if (rangeToBorder < 0) {
       return currentLeft;
@@ -164,14 +168,14 @@ export function moveLeft(rangeX, boxLeft, currentLeft, imgWidth, viewportWidth) 
   return currentLeft + shiftX;
 }
 
-export function moveRight(rangeX, boxRight, currentLeft, imgWidth, viewportWidth) {
+export function moveRight(rangeX, currentLeft, imgWidth, viewportWidth) {
   let shiftX = rangeX;
   let border = 0;
   let rangeToBorder = 0;
 
   if (imgWidth > viewportWidth) {
     border = imgWidth;
-    rangeToBorder = border - boxRight;
+    rangeToBorder = border - (currentLeft + imgWidth);
 
     if (rangeToBorder < 0) {
       return currentLeft;
@@ -182,7 +186,7 @@ export function moveRight(rangeX, boxRight, currentLeft, imgWidth, viewportWidth
     }
   } else {
     border = imgWidth + (Math.round(viewportWidth - imgWidth) / 2);
-    rangeToBorder = border - boxRight;
+    rangeToBorder = border - (currentLeft + imgWidth);
 
     if (rangeToBorder < 0) {
       return currentLeft;
@@ -196,14 +200,14 @@ export function moveRight(rangeX, boxRight, currentLeft, imgWidth, viewportWidth
   return currentLeft + shiftX;
 }
 
-export function moveTop(rangeY, boxTop, currentTop, imgHeight, viewportHeight, offsetY) {
+export function moveTop(rangeY, currentTop, imgHeight, viewportHeight, offsetY) {
   let shiftY = rangeY;
   let border = 0;
   let rangeToBorder = 0;
 
   if (imgHeight > viewportHeight) {
     border = Math.abs(viewportHeight - imgHeight) - offsetY;
-    rangeToBorder = border + boxTop;
+    rangeToBorder = border + currentTop;
 
     if (rangeToBorder < 0) {
       return currentTop;
@@ -214,7 +218,7 @@ export function moveTop(rangeY, boxTop, currentTop, imgHeight, viewportHeight, o
     }
   } else {
     border = Math.round((viewportHeight - imgHeight) / 2) - offsetY;
-    rangeToBorder = boxTop - border;
+    rangeToBorder = currentTop - border;
 
     if (rangeToBorder < 0) {
       return currentTop;
@@ -228,14 +232,14 @@ export function moveTop(rangeY, boxTop, currentTop, imgHeight, viewportHeight, o
   return currentTop + shiftY;
 }
 
-export function moveBottom(rangeY, boxBottom, currentTop, imgHeight, viewportHeight, offsetY) {
+export function moveBottom(rangeY, currentTop, imgHeight, viewportHeight, offsetY) {
   let shiftY = rangeY;
   let border = 0;
   let rangeToBorder = 0;
 
   if (imgHeight > viewportHeight) {
     border = imgHeight + offsetY;
-    rangeToBorder = border - boxBottom;
+    rangeToBorder = border - (currentTop + imgHeight);
 
     if (rangeToBorder < 0) {
       return currentTop;
@@ -246,7 +250,7 @@ export function moveBottom(rangeY, boxBottom, currentTop, imgHeight, viewportHei
     }
   } else {
     border = imgHeight + (Math.round(viewportHeight - imgHeight) / 2) + offsetY;
-    rangeToBorder = border - boxBottom;
+    rangeToBorder = border - (currentTop + imgHeight);
 
     // stopper
     if (rangeToBorder < 0) {

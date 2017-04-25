@@ -77,21 +77,19 @@ export function handleMouseMove(img, current, preview, loaded) {
     const rangeX = event.clientX - cursor.left;
     const rangeY = event.clientY - cursor.top;
 
-    const box = img.getBoundingClientRect();
-
     let left = 0;
     let top = 0;
 
     if (rangeX < 0) {
-      left = core.moveLeft(rangeX, box.left, current.left, current.width, window.innerWidth);
+      left = core.moveLeft(rangeX, current.left, current.width, window.innerWidth);
     } else {
-      left = core.moveRight(rangeX, box.right, current.left, current.width, window.innerWidth);
+      left = core.moveRight(rangeX, current.left, current.width, window.innerWidth);
     }
 
     if (rangeY < 0) {
-      top = core.moveTop(rangeY, box.top, current.top, current.height, window.innerHeight - 40, 40);
+      top = core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40);
     } else {
-      top = core.moveBottom(rangeY, box.bottom, current.top, current.height, window.innerHeight - 40, 40);
+      top = core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
     }
 
     // main

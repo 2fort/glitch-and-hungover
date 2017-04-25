@@ -45,13 +45,17 @@ export function setImageLoaded() {
   };
 }
 
-export function setInitialValues(img) {
-  const { width, height, naturalWidth, naturalHeight } = img;
+export function setInitialValues({ width, height, naturalWidth, naturalHeight, left, top }) {
   return {
     type: SET_INITIAL_VALUES,
     initial: {
       scale: getScale(width, naturalWidth),
-      box: img.getBoundingClientRect(),
+      box: {
+        top,
+        left,
+        right: left + width,
+        bottom: top + height,
+      },
       width,
       height,
       naturalWidth,
@@ -110,7 +114,7 @@ export default function reducer(state = defaultState, action) {
       return { ...defaultState };
 
     case SET_INITIAL_VALUES:
-      return { ...state, initial: action.initial, scale: action.initial.scale };
+      return { ...state, initial: action.initial };
 
     case SET_CURRENT_SCALE:
       return { ...state, scale: action.scale };

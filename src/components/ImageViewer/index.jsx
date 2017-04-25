@@ -40,6 +40,9 @@ ProxyRoute.propTypes = {
 class ImageViewer extends Component {
   constructor(props) {
     super(props);
+
+    this.scrollY = window.scrollY;
+
     this.current = { left: 0, top: 0, width: 0, height: 0 };
     Object.defineProperty(this.current, 'set', {
       value: function setValue({ left, top, width, height }) {
@@ -51,17 +54,18 @@ class ImageViewer extends Component {
     });
 
     document.body.classList.add('overlay-active');
-    document.onkeydown = keys(() => this.props);
+    document.documentElement.classList.add('html-noscroll');
 
-    let resizeDebounce;
-    window.onresize = () => {
-      clearTimeout(resizeDebounce);
-      resizeDebounce = setTimeout(() => {
-        if (this.props.scale === this.props.initial.scale) {
-          loading(this.img, this.preview, this.current, this.props.actions.setInitialValues, this.props.loaded);
-        }
-      }, 200);
-    };
+    document.querySelector('meta[name=viewport]')
+      .setAttribute('content', 'initial-scale=1, maximum-scale=1.0, user-scalable=0');
+
+    document.onkeydown = keys(() => this.props);
+    window.onresize = loading.handleResizeWindow(() => ({
+      props: this.props,
+      img: this.img,
+      preview: this.preview,
+      current: this.current,
+    }));
   }
 
   componentDidMount() {
@@ -84,20 +88,25 @@ class ImageViewer extends Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.currentImg !== prevProps.currentImg) {
-      loading(this.img, this.preview, this.current, this.props.actions.setInitialValues, this.props.loaded);
+      const { loaded, actions: { setInitialValues, setScale } } = this.props;
+      loading.load(this.img, this.preview, this.current, setInitialValues, setScale, loaded);
     }
   }
 
   componentWillUnmount() {
     document.onkeydown = null;
+    document.querySelector('meta[name=viewport]')
+      .setAttribute('content', 'initial-scale=1.0,width=device-width');
     document.body.classList.remove('overlay-active');
+    document.documentElement.classList.remove('html-noscroll');
+    window.scrollTo(0, this.scrollY);
     window.onresize = null;
 
     this.props.actions.reset();
   }
 
   render() {
-    const { galleryTitle, galleryId, images, currentImg, modal, scale, actions, initial, loaded } = this.props;
+    const { galleryTitle, galleryId, images, currentImg, modal, scale, actions, initial, loaded, history } = this.props;
 
     if (!currentImg) return null;
 
@@ -111,9 +120,14 @@ class ImageViewer extends Component {
         onMouseLeave={mouse.handleMouseUp(this.img)}
       >
         <div className={css.topbar}>
-          <Link to="/" className={classes(css.closeBtn, 'btn btn-link')} title="Назад">
-            <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
-          </Link>
+          {modal
+            ? <button className={classes(css.closeBtn, 'btn btn-link')} type="button" onClick={() => { history.goBack(); }}>
+              <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
+            </button>
+            : <Link to="/" className={classes(css.closeBtn, 'btn btn-link')} title="Назад">
+              <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
+            </Link>
+          }
           <div className={css.title}>
             {galleryTitle}, {currentImg} / {images.length}
           </div>
@@ -164,28 +178,32 @@ class ImageViewer extends Component {
           </div>
         </div>
 
-        <img
-          className={css.previewimg}
-          alt={currentImg}
-          key={`${currentImg} preview`}
-          src={`/img/comics/${images[currentImg - 1].small}`}
-          ref={(prev) => { this.preview = prev; }}
-        />
+        <div className={css.frame}>
+          <img
+            className={css.previewimg}
+            alt={currentImg}
+            key={`${currentImg} preview`}
+            src={`/img/comics/${images[currentImg - 1].small}`}
+            ref={(prev) => { this.preview = prev; }}
+          />
 
-        <img
-          className={css.fullimg}
-          alt={currentImg}
-          key={`${currentImg} full`}
-          src={`/img/comics/${images[currentImg - 1].large}`}
-          ref={(img) => { this.img = img; }}
-          onLoad={() => { actions.setImageLoaded(); this.preview.style.visibility = 'hidden'; }}
-          onWheel={mouse.handleWheel(scale, initial, this.current, actions.setScale, this.preview, loaded)}
-          onMouseDown={mouse.handleMouseDown(scale, initial)}
-          onDoubleClick={mouse.handleDoubleClick(scale, initial, this.current, actions.setScale, this.preview)}
-          // onTouchStart={this.onTouchStart}
-          // onTouchMove={this.onTouchMove}
-          // onTouchEnd={this.onTouchEnd}
-        />
+          <img
+            className={css.fullimg}
+            alt={currentImg}
+            key={`${currentImg} full`}
+            src={`/img/comics/${images[currentImg - 1].medium}`}
+            ref={(img) => { this.img = img; }}
+            onLoad={() => { actions.setImageLoaded(); this.preview.style.visibility = 'hidden'; }}
+            onWheel={mouse.handleWheel(scale, initial, this.current, actions.setScale, this.preview, loaded)}
+            onMouseDown={mouse.handleMouseDown(scale, initial)}
+            onDoubleClick={mouse.handleDoubleClick(scale, initial, this.current, actions.setScale, this.preview)}
+            onTouchStart={touch.handleTouchStart(scale, initial, this.current)}
+            onTouchMove={
+              touch.handleTouchMove(initial, this.current, loaded, this.img, this.preview, scale, actions.setScale)
+            }
+            onTouchEnd={touch.handleTouchEnd(this.current)}
+          />
+        </div>
       </div>
     );
   }
