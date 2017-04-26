@@ -7,52 +7,55 @@ const cursor = {
 
 let move = false;
 
-function apply(elem, newCurrent) {
-  elem.style.width = `${newCurrent.width}px`; // eslint-disable-line
-  elem.style.height = `${newCurrent.height}px`; // eslint-disable-line
-  elem.style.transform = `translate3d(${newCurrent.left}px, ${newCurrent.top}px, 0)`; // eslint-disable-line
+function apply(elem, initial, newCurrent) {
+  const distanceX = ((initial.naturalWidth - newCurrent.width) / 2) - newCurrent.left;
+  const distanceY = ((initial.naturalHeight - newCurrent.height) / 2) - newCurrent.top;
+
+  elem.style.transform = // eslint-disable-line
+    `translate3d(${Math.round(distanceX * -1)}px, ${Math.round(distanceY * -1)}px, 0) ` +
+    `scale3d(${newCurrent.scale}, ${newCurrent.scale}, 1)`;
 }
 
 export function handleWheel(scale, initial, current, setScale, preview, loaded) {
   return (e) => {
-    if ((scale === 100.00 && e.deltaY < 0) || (scale === initial.scale && e.deltaY > 0)) {
+    if ((current.scale === 1 && e.deltaY < 0) || (current.scale === initial.scale && e.deltaY > 0)) {
       return;
     }
 
     const newCurrent = core.zoom(e, { initial, current });
-    apply(e.target, newCurrent);
+    apply(e.target, initial, newCurrent);
 
     if (!loaded) {
-      apply(preview, newCurrent);
+      apply(preview, initial, newCurrent);
     }
 
     current.set(newCurrent);
-    setScale(newCurrent.width, initial.naturalWidth);
+    // setScale(newCurrent.width, initial.naturalWidth);
   };
 }
 
 export function handleDoubleClick(scale, initial, current, setScale, preview, loaded) {
   return (e) => {
     const newCurrent = (() => {
-      if (scale === 100.00) {
+      if (current.scale === 1) {
         return core.zoom(e, { initial, current }, { min: true });
       }
 
       return core.zoom(e, { initial, current }, { max: true });
     })();
 
-    apply(e.target, newCurrent);
+    apply(e.target, initial, newCurrent);
 
     if (!loaded) {
-      apply(preview, newCurrent);
+      apply(preview, initial, newCurrent);
     }
 
     current.set(newCurrent);
-    setScale(newCurrent.width, initial.naturalWidth);
+    // setScale(newCurrent.width, initial.naturalWidth);
   };
 }
 
-export function handleMouseDown(scale, initial) {
+export function handleMouseDown(scale, initial, current) {
   return (e) => {
     cursor.left = e.clientX;
     cursor.top = e.clientY;
@@ -61,7 +64,7 @@ export function handleMouseDown(scale, initial) {
 
     img.ondragstart = () => false;
 
-    if (scale === initial.scale) {
+    if (current.scale === initial.scale) {
       return;
     }
 
@@ -70,7 +73,7 @@ export function handleMouseDown(scale, initial) {
   };
 }
 
-export function handleMouseMove(img, current, preview, loaded) {
+export function handleMouseMove(img, initial, current, preview, loaded) {
   return (event) => {
     if (!move) return;
 
@@ -92,19 +95,27 @@ export function handleMouseMove(img, current, preview, loaded) {
       top = core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
     }
 
+    const newCurrent = {
+      top,
+      left,
+      width: current.width,
+      height: current.height,
+      scale: current.scale,
+    };
+
     // main
     if (current.left !== left || current.top !== top) {
-      img.style.transform = `translate3d(${left}px, ${top}px, 0)`; // eslint-disable-line
+      apply(img, initial, newCurrent);
     }
 
     // preview
     if (!loaded) {
       if (current.left !== left || current.top !== top) {
-        preview.style.transform = `translate3d(${left}px, ${top}px, 0)`; // eslint-disable-line
+        apply(preview, initial, newCurrent);
       }
     }
 
-    current.set({ left, top, width: current.width, height: current.height });
+    current.set({ left, top, width: current.width, height: current.height, scale: current.scale });
 
     cursor.left = event.clientX;
     cursor.top = event.clientY;

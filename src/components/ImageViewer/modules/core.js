@@ -4,17 +4,18 @@ export function adjust(img, viewportWidth, viewportHeight, offsetY) {
     height: img.height,
     left: 0,
     top: 0,
+    scale: 0,
   };
 
   if (img.width > viewportWidth || img.height > viewportHeight) {
-    let scale = viewportWidth / img.width;
+    newImg.scale = viewportWidth / img.width;
 
-    if (img.height * scale > viewportHeight) {
-      scale = viewportHeight / img.height;
+    if (img.height * newImg.scale > viewportHeight) {
+      newImg.scale = viewportHeight / img.height;
     }
 
-    newImg.width = Math.round(img.width * scale);
-    newImg.height = Math.round(img.height * scale);
+    newImg.width = Math.round(img.width * newImg.scale);
+    newImg.height = Math.round(img.height * newImg.scale);
   }
 
   newImg.left = Math.round((viewportWidth - newImg.width) / 2);
@@ -36,6 +37,7 @@ export function zoom(e, img, newOptions) {
     height: 0,
     left: 0,
     top: 0,
+    scale: 0,
   };
 
   newImg.width = (() => {
@@ -78,6 +80,29 @@ export function zoom(e, img, newOptions) {
     }
 
     return height;
+  })();
+
+  newImg.scale = (() => {
+    let scale = 0;
+
+    if (options.max) return 1;
+    if (options.min) return img.initial.scale;
+
+    if (e.deltaY < 0) {
+      scale = Number(img.current.scale) + (options.zoomFactor / 100);
+    } else {
+      scale = Number(img.current.scale) - (options.zoomFactor / 100);
+    }
+
+    if (scale > 1) {
+      return 1;
+    }
+
+    if (scale < img.initial.scale) {
+      return img.initial.scale;
+    }
+
+    return scale;
   })();
 
   const newWidthPercent = (newImg.width / img.current.width) * 100;

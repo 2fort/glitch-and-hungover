@@ -93,7 +93,7 @@ function handlePinch(touches, initial, current, loaded, img, preview, scale, set
     (Math.round(touch1.clientX - touch2.clientX) ** 2) + (Math.round(touch1.clientY - touch2.clientY) ** 2),
   );
 
-  if (!distance) {
+  if (!distance || Math.abs(newDistance - distance) > 2) {
     distance = newDistance;
     return;
   }
@@ -116,7 +116,7 @@ function handlePinch(touches, initial, current, loaded, img, preview, scale, set
   }
 
   current.set(newCurrent);
-  setScale(newCurrent.width, initial.naturalWidth);
+  // setScale(newCurrent.width, initial.naturalWidth);
 
   // console.log(clientX, clientY);
 }

@@ -9,7 +9,7 @@ const SET_INITIAL_VALUES = `${prefix}/SET_INITIAL_VALUES`;
 const SET_CURRENT_SCALE = `${prefix}/SET_CURRENT_SCALE`;
 const SET_CURRENT_IMAGE = `${prefix}/SET_CURRENT_IMAGE`;
 
-const getScale = (width, naturalWidth) => Number(((width / naturalWidth) * 100).toFixed(2));
+const getScale = (width, naturalWidth) => Number(width / naturalWidth);
 
 export function addImages(images, imagePosition) {
   return {

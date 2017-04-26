@@ -43,13 +43,14 @@ class ImageViewer extends Component {
 
     this.scrollY = window.scrollY;
 
-    this.current = { left: 0, top: 0, width: 0, height: 0 };
+    this.current = { left: 0, top: 0, width: 0, height: 0, scale: 0 };
     Object.defineProperty(this.current, 'set', {
-      value: function setValue({ left, top, width, height }) {
+      value: function setValue({ left, top, width, height, scale }) {
         this.left = left;
         this.top = top;
         this.width = width;
         this.height = height;
+        this.scale = scale;
       },
     });
 
@@ -115,7 +116,7 @@ class ImageViewer extends Component {
     return (
       <div
         className={css.overlay}
-        onMouseMove={mouse.handleMouseMove(this.img, this.current, this.preview, loaded)}
+        onMouseMove={mouse.handleMouseMove(this.img, this.props.initial, this.current, this.preview, loaded)}
         onMouseUp={mouse.handleMouseUp(this.img)}
         onMouseLeave={mouse.handleMouseUp(this.img)}
       >
@@ -195,7 +196,7 @@ class ImageViewer extends Component {
             ref={(img) => { this.img = img; }}
             onLoad={() => { actions.setImageLoaded(); this.preview.style.visibility = 'hidden'; }}
             onWheel={mouse.handleWheel(scale, initial, this.current, actions.setScale, this.preview, loaded)}
-            onMouseDown={mouse.handleMouseDown(scale, initial)}
+            onMouseDown={mouse.handleMouseDown(scale, initial, this.current)}
             onDoubleClick={mouse.handleDoubleClick(scale, initial, this.current, actions.setScale, this.preview)}
             onTouchStart={touch.handleTouchStart(scale, initial, this.current)}
             onTouchMove={
