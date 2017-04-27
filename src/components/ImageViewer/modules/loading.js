@@ -5,12 +5,7 @@ let resizeDebounce;
 
 function apply(elem, initial, newCurrent) {
   if (elem.style.visibility !== 'hidden') {
-    const distanceX = ((initial.naturalWidth - newCurrent.width) / 2) - newCurrent.left;
-    const distanceY = ((initial.naturalHeight - newCurrent.height) / 2) - newCurrent.top;
-
-    elem.style.transform = // eslint-disable-line
-      `translate3d(${Math.round(distanceX * -1)}px, ${Math.round(distanceY * -1)}px, 0) ` + // eslint-disable-line
-      `scale3d(${newCurrent.scale}, ${newCurrent.scale}, 1)`;
+    elem.style.transform = `translate(${newCurrent.left}px, ${newCurrent.top}px) scale(${newCurrent.scale})`; // eslint-disable-line
     elem.style.visibility = 'visible'; // eslint-disable-line
   }
 }

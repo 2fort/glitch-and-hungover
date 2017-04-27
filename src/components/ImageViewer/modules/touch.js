@@ -10,16 +10,14 @@ let swipeRight;
 let pinch;
 
 function apply(elem, newCurrent) {
-  elem.style.width = `${newCurrent.width}px`; // eslint-disable-line
-  elem.style.height = `${newCurrent.height}px`; // eslint-disable-line
-  elem.style.transform = `translate3d(${newCurrent.left}px, ${newCurrent.top}px, 0)`; // eslint-disable-line
+  elem.style.transform = `translate(${newCurrent.left}px, ${newCurrent.top}px) scale(${newCurrent.scale})`; // eslint-disable-line
 }
 
 export function handleTouchStart(scale, initial, current) {
   return (e) => {
-    if (e.touches.length === 1 && scale !== initial.scale) {
+    if (e.touches.length === 1 && current.scale !== initial.scale) {
       pan = true;
-    } else if (e.touches.length === 1 && scale === initial.scale) {
+    } else if (e.touches.length === 1 && current.scale === initial.scale) {
       swipe = true;
     } else if (e.touches.length === 2) {
       pan = false;
@@ -61,19 +59,27 @@ function handlePan(touch, current, loaded, img, preview) {
     top = core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
   }
 
+  const newCurrent = {
+    top,
+    left,
+    width: current.width,
+    height: current.height,
+    scale: current.scale,
+  };
+
   // main
   if (current.left !== left || current.top !== top) {
-    img.style.transform = `translate3d(${left}px, ${top}px, 0)`; // eslint-disable-line
+    apply(img, newCurrent);
   }
 
   // preview
   if (!loaded) {
     if (current.left !== left || current.top !== top) {
-      preview.style.transform = `translate3d(${left}px, ${top}px, 0)`; // eslint-disable-line
+      apply(preview, newCurrent);
     }
   }
 
-  current.set({ left, top, width: current.width, height: current.height });
+  current.set({ left, top, width: current.width, height: current.height, scale: current.scale });
 
   cursor.left = touch.clientX;
   cursor.top = touch.clientY;
@@ -93,7 +99,7 @@ function handlePinch(touches, initial, current, loaded, img, preview, scale, set
     (Math.round(touch1.clientX - touch2.clientX) ** 2) + (Math.round(touch1.clientY - touch2.clientY) ** 2),
   );
 
-  if (!distance || Math.abs(newDistance - distance) > 2) {
+  if (!distance || Math.abs(newDistance - distance) < 3) {
     distance = newDistance;
     return;
   }
@@ -102,13 +108,13 @@ function handlePinch(touches, initial, current, loaded, img, preview, scale, set
 
   distance = newDistance;
 
-  if ((scale === 100.00 && deltaY < 0) || (scale === initial.scale && deltaY > 0)) {
+  if ((current.scale === 100.00 && deltaY < 0) || (current.scale === initial.scale && deltaY > 0)) {
     return;
   }
 
   const e = { clientX, clientY, deltaY };
 
-  const newCurrent = core.zoom(e, { initial, current }, { zoomFactor: 3 });
+  const newCurrent = core.zoom(e, { initial, current }, { zoomFactor: 2.5 });
   apply(img, newCurrent);
 
   if (!loaded) {

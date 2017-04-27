@@ -14,12 +14,12 @@ export function adjust(img, viewportWidth, viewportHeight, offsetY) {
       newImg.scale = viewportHeight / img.height;
     }
 
-    newImg.width = Math.round(img.width * newImg.scale);
-    newImg.height = Math.round(img.height * newImg.scale);
+    newImg.width = img.width * newImg.scale;
+    newImg.height = img.height * newImg.scale;
   }
 
-  newImg.left = Math.round((viewportWidth - newImg.width) / 2);
-  newImg.top = Math.round((viewportHeight - newImg.height) / 2) + offsetY;
+  newImg.left = (viewportWidth - newImg.width) / 2;
+  newImg.top = ((viewportHeight - newImg.height) / 2) + offsetY;
 
   return newImg;
 }
@@ -47,12 +47,12 @@ export function zoom(e, img, newOptions) {
     if (options.min) return img.initial.width;
 
     if (e.deltaY < 0) {
-      width = img.current.width + (Math.round(img.initial.naturalWidth / 100) * options.zoomFactor);
+      width = img.current.width + ((img.initial.naturalWidth / 100) * options.zoomFactor);
       if (width > img.initial.naturalWidth) {
         return img.initial.naturalWidth;
       }
     } else {
-      width = img.current.width - (Math.round(img.initial.naturalWidth / 100) * options.zoomFactor);
+      width = img.current.width - ((img.initial.naturalWidth / 100) * options.zoomFactor);
       if (width < img.initial.width) {
         return img.initial.width;
       }
@@ -68,12 +68,12 @@ export function zoom(e, img, newOptions) {
     if (options.min) return img.initial.height;
 
     if (e.deltaY < 0) {
-      height = img.current.height + (Math.round(img.initial.naturalHeight / 100) * options.zoomFactor);
+      height = img.current.height + ((img.initial.naturalHeight / 100) * options.zoomFactor);
       if (height > img.initial.naturalHeight) {
         return img.initial.naturalHeight;
       }
     } else {
-      height = img.current.height - (Math.round(img.initial.naturalHeight / 100) * options.zoomFactor);
+      height = img.current.height - ((img.initial.naturalHeight / 100) * options.zoomFactor);
       if (height < img.initial.height) {
         return img.initial.height;
       }
@@ -111,8 +111,8 @@ export function zoom(e, img, newOptions) {
   const leftSide = e.clientX - img.current.left;
   const topSide = e.clientY - img.current.top;
 
-  const newLeftSide = leftSide - Math.round(leftSide * (newWidthPercent / 100));
-  const newTopSide = topSide - Math.round(topSide * (newHeightPercent / 100));
+  const newLeftSide = leftSide - (leftSide * (newWidthPercent / 100));
+  const newTopSide = topSide - (topSide * (newHeightPercent / 100));
 
   newImg.left = (() => {
     if (options.min) return img.initial.box.left;
@@ -178,7 +178,7 @@ export function moveLeft(rangeX, currentLeft, imgWidth, viewportWidth) {
       shiftX = -rangeToBorder;
     }
   } else {
-    border = Math.round((viewportWidth - imgWidth) / 2);
+    border = (viewportWidth - imgWidth) / 2;
     rangeToBorder = currentLeft - border;
 
     if (rangeToBorder < 0) {
@@ -210,7 +210,7 @@ export function moveRight(rangeX, currentLeft, imgWidth, viewportWidth) {
       shiftX = rangeToBorder;
     }
   } else {
-    border = imgWidth + (Math.round(viewportWidth - imgWidth) / 2);
+    border = imgWidth + ((viewportWidth - imgWidth) / 2);
     rangeToBorder = border - (currentLeft + imgWidth);
 
     if (rangeToBorder < 0) {
@@ -242,7 +242,7 @@ export function moveTop(rangeY, currentTop, imgHeight, viewportHeight, offsetY) 
       shiftY = -rangeToBorder;
     }
   } else {
-    border = Math.round((viewportHeight - imgHeight) / 2) - offsetY;
+    border = ((viewportHeight - imgHeight) / 2) - offsetY;
     rangeToBorder = currentTop - border;
 
     if (rangeToBorder < 0) {
@@ -274,7 +274,7 @@ export function moveBottom(rangeY, currentTop, imgHeight, viewportHeight, offset
       shiftY = rangeToBorder;
     }
   } else {
-    border = imgHeight + (Math.round(viewportHeight - imgHeight) / 2) + offsetY;
+    border = imgHeight + ((viewportHeight - imgHeight) / 2) + offsetY;
     rangeToBorder = border - (currentTop + imgHeight);
 
     // stopper

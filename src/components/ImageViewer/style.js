@@ -101,6 +101,7 @@ export const previewimg = style({
   position: 'absolute',
   visibility: 'hidden',
   zIndex: 100502,
+  transformOrigin: '0 0',
 });
 
 export const fullimg = style({
@@ -108,4 +109,5 @@ export const fullimg = style({
   position: 'absolute',
   visibility: 'hidden',
   zIndex: 100503,
+  transformOrigin: '0 0',
 });

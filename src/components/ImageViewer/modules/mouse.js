@@ -8,12 +8,7 @@ const cursor = {
 let move = false;
 
 function apply(elem, initial, newCurrent) {
-  const distanceX = ((initial.naturalWidth - newCurrent.width) / 2) - newCurrent.left;
-  const distanceY = ((initial.naturalHeight - newCurrent.height) / 2) - newCurrent.top;
-
-  elem.style.transform = // eslint-disable-line
-    `translate3d(${Math.round(distanceX * -1)}px, ${Math.round(distanceY * -1)}px, 0) ` +
-    `scale3d(${newCurrent.scale}, ${newCurrent.scale}, 1)`;
+  elem.style.transform = `translate(${newCurrent.left}px, ${newCurrent.top}px) scale(${newCurrent.scale})`; // eslint-disable-line
 }
 
 export function handleWheel(scale, initial, current, setScale, preview, loaded) {
