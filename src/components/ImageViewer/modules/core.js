@@ -29,6 +29,7 @@ export function zoom(e, img, newOptions) {
     zoomFactor: 4,
     min: false,
     max: false,
+    zoom: null,
     ...newOptions,
   };
 
@@ -40,11 +41,18 @@ export function zoom(e, img, newOptions) {
     scale: 0,
   };
 
+  if (options.zoom && options.zoom > 1) {
+    options.zoom = 1;
+  } else if (options.zoom && options.zoom < img.initial.scale) {
+    options.zoom = img.initial.scale;
+  }
+
   newImg.width = (() => {
     let width = 0;
 
     if (options.max) return img.initial.naturalWidth;
     if (options.min) return img.initial.width;
+    if (options.zoom) return img.initial.naturalWidth * options.zoom;
 
     if (e.deltaY < 0) {
       width = img.current.width + ((img.initial.naturalWidth / 100) * options.zoomFactor);
@@ -66,6 +74,7 @@ export function zoom(e, img, newOptions) {
 
     if (options.max) return img.initial.naturalHeight;
     if (options.min) return img.initial.height;
+    if (options.zoom) return img.initial.naturalHeight * options.zoom;
 
     if (e.deltaY < 0) {
       height = img.current.height + ((img.initial.naturalHeight / 100) * options.zoomFactor);
@@ -87,6 +96,7 @@ export function zoom(e, img, newOptions) {
 
     if (options.max) return 1;
     if (options.min) return img.initial.scale;
+    if (options.zoom) return options.zoom;
 
     if (e.deltaY < 0) {
       scale = Number(img.current.scale) + (options.zoomFactor / 100);
@@ -120,14 +130,15 @@ export function zoom(e, img, newOptions) {
     const left = img.current.left + newLeftSide;
 
     // sticky left
-    if (img.current.left <= img.initial.box.left && left >= img.initial.box.left) {
+    if (Math.round(img.current.left) <= Math.round(img.initial.box.left)
+      && Math.round(left) >= Math.round(img.initial.box.left)) {
       return img.initial.box.left;
     }
 
     // sticky right
     const newboxRight = newImg.width + left;
-    if (img.current.width + img.current.left >= img.initial.box.right
-      && newImg.width + left <= img.initial.box.right) {
+    if (Math.round(img.current.width + img.current.left) >= Math.round(img.initial.box.right)
+      && Math.round(newImg.width + left) <= Math.round(img.initial.box.right)) {
       return left + (img.initial.box.right - newboxRight);
     }
 
@@ -242,7 +253,7 @@ export function moveTop(rangeY, currentTop, imgHeight, viewportHeight, offsetY) 
       shiftY = -rangeToBorder;
     }
   } else {
-    border = ((viewportHeight - imgHeight) / 2) - offsetY;
+    border = ((viewportHeight - imgHeight) / 2) + offsetY;
     rangeToBorder = currentTop - border;
 
     if (rangeToBorder < 0) {

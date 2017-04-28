@@ -124,11 +124,13 @@ class ImageViewer extends Component {
 
     Object.assign(this.current, params);
 
-    this.dom.image.style.transform = `translate(${this.current.left}px, ${this.current.top}px) scale(${this.current.scale})`;
+    this.dom.image.style.transform = `translate3d(${this.current.left}px, ${this.current.top}px, 0) ` +
+      `scale3d(${this.current.scale}, ${this.current.scale}, 1)`;
 
     if (!this.loaded) {
       const scale = this.current.width / this.dom.preview.naturalWidth;
-      this.dom.preview.style.transform = `translate(${this.current.left}px, ${this.current.top}px) scale(${scale})`;
+      this.dom.preview.style.transform = `translate3d(${this.current.left}px, ${this.current.top}px, 0) ` +
+        `scale3d(${scale}, ${scale}, 1)`;
     }
   }
 
@@ -217,6 +219,7 @@ class ImageViewer extends Component {
             alt={currentImg}
             key={`${currentImg} full`}
             src={`/img/comics/${images[currentImg - 1].large}`}
+            // src={'/img/example.jpg'}
             ref={(el) => { this.dom.image = el; }}
             onLoad={this.hidePreview}
             onWheel={mouse.handleWheel(initial, this.current, this.apply)}

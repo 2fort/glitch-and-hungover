@@ -2,6 +2,7 @@ import * as core from './core';
 
 const cursor = { left: 0, top: 0 };
 let distance;
+let distanceMove;
 let pan;
 let swipe;
 let swipeLeft;
@@ -57,13 +58,14 @@ function handlePinch(touches, initial, current, apply) {
     (Math.round(touch1.clientX - touch2.clientX) ** 2) + (Math.round(touch1.clientY - touch2.clientY) ** 2),
   );
 
-  if (!distance || Math.abs(newDistance - distance) < 4) {
+  if (!distance || Math.abs(newDistance - distance) < 2) {
     distance = newDistance;
     return;
   }
 
   const deltaY = newDistance > distance ? -1 : 1;
 
+  distanceMove = newDistance - distance;
   distance = newDistance;
 
   if ((current.scale === 100.00 && deltaY < 0) || (current.scale === initial.scale && deltaY > 0)) {
@@ -72,9 +74,8 @@ function handlePinch(touches, initial, current, apply) {
 
   const e = { clientX, clientY, deltaY };
 
-  // TODO: try change scale factor based on distance instead of changing width/height
-  // 10 pixels = 1%
-  apply(core.zoom(e, { initial, current }, { zoomFactor: 2.5 }));
+  apply(core.zoom(e, { initial, current }, { zoom: current.scale + (distanceMove / 200) }));
+  // apply(core.zoom(e, { initial, current }, { zoomFactor: 2.5 }));
 }
 
 export function handleTouchMove(initial, current, apply) {
@@ -131,11 +132,9 @@ swipeRight = (touch) => {
 
 export function handleTouchEnd(current) {
   return () => {
-    // pan = false;
     swipe = false;
     swipeLeft = false;
     swipeRight = false;
-    pinch = false;
 
     if (pan) {
       pan = false;
@@ -144,6 +143,7 @@ export function handleTouchEnd(current) {
     if (pinch) {
       pinch = false;
       distance = null;
+      distanceMove = null;
     }
 
     /* if (this.swipeLeftActive) {
