@@ -1,7 +1,6 @@
 import * as core from './core';
 
 const cursor = { left: 0, top: 0 };
-const shift = { x: 0, y: 0 };
 let distance;
 let pan;
 let swipe;
@@ -9,11 +8,7 @@ let swipeLeft;
 let swipeRight;
 let pinch;
 
-function apply(elem, newCurrent) {
-  elem.style.transform = `translate(${newCurrent.left}px, ${newCurrent.top}px) scale(${newCurrent.scale})`; // eslint-disable-line
-}
-
-export function handleTouchStart(scale, initial, current) {
+export function handleTouchStart(initial, current) {
   return (e) => {
     if (e.touches.length === 1 && current.scale !== initial.scale) {
       pan = true;
@@ -25,67 +20,30 @@ export function handleTouchStart(scale, initial, current) {
     }
 
     const touch = e.touches[0];
-
-    // shift.x = touch.clientX - current.left;
-    // shift.y = touch.clientY - current.top;
-
     cursor.left = touch.clientX;
     cursor.top = touch.clientY;
   };
 }
 
-function handlePan(touch, current, loaded, img, preview) {
-  /* console.log('shift.x', shift.x);
-  console.log('shift.y', shift.y);
-  img.style.transform = `translate3d(${touch.clientX - shift.x}px, ${touch.clientY - shift.y}px, 0)`; // eslint-disable-line
-  cursor.left = touch.clientX;
-  cursor.top = touch.clientY;*/
-
+function handlePan(touch, current, apply) {
   const rangeX = touch.clientX - cursor.left;
   const rangeY = touch.clientY - cursor.top;
 
-  let left = 0;
-  let top = 0;
+  const left = rangeX < 0
+    ? core.moveLeft(rangeX, current.left, current.width, window.innerWidth)
+    : core.moveRight(rangeX, current.left, current.width, window.innerWidth);
 
-  if (rangeX < 0) {
-    left = core.moveLeft(rangeX, current.left, current.width, window.innerWidth);
-  } else {
-    left = core.moveRight(rangeX, current.left, current.width, window.innerWidth);
-  }
+  const top = rangeY < 0
+    ? core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40)
+    : core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
 
-  if (rangeY < 0) {
-    top = core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40);
-  } else {
-    top = core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
-  }
-
-  const newCurrent = {
-    top,
-    left,
-    width: current.width,
-    height: current.height,
-    scale: current.scale,
-  };
-
-  // main
-  if (current.left !== left || current.top !== top) {
-    apply(img, newCurrent);
-  }
-
-  // preview
-  if (!loaded) {
-    if (current.left !== left || current.top !== top) {
-      apply(preview, newCurrent);
-    }
-  }
-
-  current.set({ left, top, width: current.width, height: current.height, scale: current.scale });
+  apply({ left, top });
 
   cursor.left = touch.clientX;
   cursor.top = touch.clientY;
 }
 
-function handlePinch(touches, initial, current, loaded, img, preview, scale, setScale) {
+function handlePinch(touches, initial, current, apply) {
   const touch1 = touches[0];
   const touch2 = touches[1];
 
@@ -99,7 +57,7 @@ function handlePinch(touches, initial, current, loaded, img, preview, scale, set
     (Math.round(touch1.clientX - touch2.clientX) ** 2) + (Math.round(touch1.clientY - touch2.clientY) ** 2),
   );
 
-  if (!distance || Math.abs(newDistance - distance) < 3) {
+  if (!distance || Math.abs(newDistance - distance) < 4) {
     distance = newDistance;
     return;
   }
@@ -114,29 +72,20 @@ function handlePinch(touches, initial, current, loaded, img, preview, scale, set
 
   const e = { clientX, clientY, deltaY };
 
-  const newCurrent = core.zoom(e, { initial, current }, { zoomFactor: 2.5 });
-  apply(img, newCurrent);
-
-  if (!loaded) {
-    apply(preview, newCurrent);
-  }
-
-  current.set(newCurrent);
-  // setScale(newCurrent.width, initial.naturalWidth);
-
-  // console.log(clientX, clientY);
+  // TODO: try change scale factor based on distance instead of changing width/height
+  // 10 pixels = 1%
+  apply(core.zoom(e, { initial, current }, { zoomFactor: 2.5 }));
 }
 
-export function handleTouchMove(initial, current, loaded, img, preview, scale, setScale) {
+export function handleTouchMove(initial, current, apply) {
   return (e) => {
+    e.preventDefault();
     if (pan) {
-      handlePan(e.touches[0], current, loaded, img, preview);
+      handlePan(e.touches[0], current, apply);
       return;
     }
     if (pinch) {
-      // console.log('it is pinch!');
-      // console.log(e.touches[0].clientX, ' ', e.touches[1].clientX);
-      handlePinch(e.touches, initial, current, loaded, img, preview, scale, setScale);
+      handlePinch(e.touches, initial, current, apply);
       return;
     }
   };
@@ -190,12 +139,6 @@ export function handleTouchEnd(current) {
 
     if (pan) {
       pan = false;
-      /* current.set({
-        left: cursor.left - shift.x,
-        top: cursor.top - shift.y,
-        width: current.width,
-        height: current.height,
-      });*/
     }
 
     if (pinch) {

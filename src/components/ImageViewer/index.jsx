@@ -42,17 +42,9 @@ class ImageViewer extends Component {
     super(props);
 
     this.scrollY = window.scrollY;
-
+    this.dom = { image: null, preview: null, scale: null };
     this.current = { left: 0, top: 0, width: 0, height: 0, scale: 0 };
-    Object.defineProperty(this.current, 'set', {
-      value: function setValue({ left, top, width, height, scale }) {
-        this.left = left;
-        this.top = top;
-        this.width = width;
-        this.height = height;
-        this.scale = scale;
-      },
-    });
+    this.loaded = false;
 
     document.body.classList.add('overlay-active');
     document.documentElement.classList.add('html-noscroll');
@@ -83,14 +75,15 @@ class ImageViewer extends Component {
 
   componentWillUpdate(nextProps) {
     if (this.props.match.params.page !== nextProps.match.params.page) {
+      this.loaded = false;
       this.props.actions.setCurrentImage(Number(nextProps.match.params.page));
     }
   }
 
   componentDidUpdate(prevProps) {
     if (this.props.currentImg !== prevProps.currentImg) {
-      const { loaded, actions: { setInitialValues, setScale } } = this.props;
-      loading.load(this.img, this.preview, this.current, setInitialValues, setScale, loaded);
+      const { actions: { setInitialValues } } = this.props;
+      loading.load(this.dom.image, this.apply, setInitialValues, this.activate);
     }
   }
 
@@ -100,14 +93,47 @@ class ImageViewer extends Component {
       .setAttribute('content', 'initial-scale=1.0,width=device-width');
     document.body.classList.remove('overlay-active');
     document.documentElement.classList.remove('html-noscroll');
+
     window.scrollTo(0, this.scrollY);
     window.onresize = null;
 
     this.props.actions.reset();
   }
 
+  setScale = (width) => {
+    this.dom.scale.innerHTML = `${((width / this.dom.image.naturalWidth) * 100).toFixed(2)}%`;
+  }
+
+  activate = () => {
+    this.dom.image.style.visibility = 'visible';
+
+    if (!this.loaded) {
+      this.dom.preview.style.visibility = 'visible';
+    }
+  }
+
+  hidePreview = () => {
+    this.loaded = true;
+    this.dom.preview.style.visibility = 'hidden';
+  }
+
+  apply = (params) => {
+    if (params.width && params.width !== this.current.width) {
+      this.setScale(params.width);
+    }
+
+    Object.assign(this.current, params);
+
+    this.dom.image.style.transform = `translate(${this.current.left}px, ${this.current.top}px) scale(${this.current.scale})`;
+
+    if (!this.loaded) {
+      const scale = this.current.width / this.dom.preview.naturalWidth;
+      this.dom.preview.style.transform = `translate(${this.current.left}px, ${this.current.top}px) scale(${scale})`;
+    }
+  }
+
   render() {
-    const { galleryTitle, galleryId, images, currentImg, modal, scale, actions, initial, loaded, history } = this.props;
+    const { galleryTitle, galleryId, images, currentImg, modal, initial, history } = this.props;
 
     if (!currentImg) return null;
 
@@ -116,9 +142,9 @@ class ImageViewer extends Component {
     return (
       <div
         className={css.overlay}
-        onMouseMove={mouse.handleMouseMove(this.img, this.props.initial, this.current, this.preview, loaded)}
-        onMouseUp={mouse.handleMouseUp(this.img)}
-        onMouseLeave={mouse.handleMouseUp(this.img)}
+        onMouseMove={mouse.handleMouseMove(initial, this.current, this.apply)}
+        onMouseUp={mouse.handleMouseUp(this.dom.image)}
+        onMouseLeave={mouse.handleMouseUp(this.dom.image)}
       >
         <div className={css.topbar}>
           {modal
@@ -132,9 +158,7 @@ class ImageViewer extends Component {
           <div className={css.title}>
             {galleryTitle}, {currentImg} / {images.length}
           </div>
-          <div className={css.scale}>
-            {scale}%
-          </div>
+          <div className={css.scale} ref={(el) => { this.dom.scale = el; }} />
           <a
             href={`/img/comics/${images[currentImg - 1].large}`}
             className={classes(css.downloadBtn, 'btn btn-link')}
@@ -185,23 +209,21 @@ class ImageViewer extends Component {
             alt={currentImg}
             key={`${currentImg} preview`}
             src={`/img/comics/${images[currentImg - 1].small}`}
-            ref={(prev) => { this.preview = prev; }}
+            ref={(el) => { this.dom.preview = el; }}
           />
 
           <img
             className={css.fullimg}
             alt={currentImg}
             key={`${currentImg} full`}
-            src={`/img/comics/${images[currentImg - 1].medium}`}
-            ref={(img) => { this.img = img; }}
-            onLoad={() => { actions.setImageLoaded(); this.preview.style.visibility = 'hidden'; }}
-            onWheel={mouse.handleWheel(scale, initial, this.current, actions.setScale, this.preview, loaded)}
-            onMouseDown={mouse.handleMouseDown(scale, initial, this.current)}
-            onDoubleClick={mouse.handleDoubleClick(scale, initial, this.current, actions.setScale, this.preview)}
-            onTouchStart={touch.handleTouchStart(scale, initial, this.current)}
-            onTouchMove={
-              touch.handleTouchMove(initial, this.current, loaded, this.img, this.preview, scale, actions.setScale)
-            }
+            src={`/img/comics/${images[currentImg - 1].large}`}
+            ref={(el) => { this.dom.image = el; }}
+            onLoad={this.hidePreview}
+            onWheel={mouse.handleWheel(initial, this.current, this.apply)}
+            onMouseDown={mouse.handleMouseDown(initial, this.current)}
+            onDoubleClick={mouse.handleDoubleClick(initial, this.current, this.apply)}
+            onTouchStart={touch.handleTouchStart(initial, this.current)}
+            onTouchMove={touch.handleTouchMove(initial, this.current, this.apply)}
             onTouchEnd={touch.handleTouchEnd(this.current)}
           />
         </div>
@@ -250,7 +272,6 @@ ImageViewer.propTypes = {
     large: PropTypes.string.isRequired,
   }).isRequired).isRequired,
   currentImg: PropTypes.number.isRequired,
-  loaded: PropTypes.bool.isRequired,
   initial: PropTypes.shape({
     scale: PropTypes.number.isRequired,
     box: PropTypes.object.isRequired,
@@ -259,16 +280,13 @@ ImageViewer.propTypes = {
     naturalWidth: PropTypes.number.isRequired,
     naturalHeight: PropTypes.number.isRequired,
   }).isRequired,
-  scale: PropTypes.number.isRequired,
   actions: PropTypes.shape({
     setGalleryId: PropTypes.func.isRequired,
     setGalleryTitle: PropTypes.func.isRequired,
     addImages: PropTypes.func.isRequired,
     reset: PropTypes.func.isRequired,
-    setImageLoaded: PropTypes.func.isRequired,
     setInitialValues: PropTypes.func.isRequired,
     setCurrentImage: PropTypes.func.isRequired,
-    setScale: PropTypes.func.isRequired,
   }).isRequired,
 };
 

@@ -3,49 +3,27 @@ import * as core from './core';
 const initialWindow = { width: window.innerWidth, height: window.innerHeight };
 let resizeDebounce;
 
-function apply(elem, initial, newCurrent) {
-  if (elem.style.visibility !== 'hidden') {
-    elem.style.transform = `translate(${newCurrent.left}px, ${newCurrent.top}px) scale(${newCurrent.scale})`; // eslint-disable-line
-    elem.style.visibility = 'visible'; // eslint-disable-line
-  }
-}
+export function load(img, apply, setInitialValues, activate) {
+  function init() {
+    const params = core.adjust(
+      { width: img.naturalWidth, height: img.naturalHeight },
+      window.innerWidth,
+      window.innerHeight - 40,
+      40,
+    );
 
-function init(img, preview, current, setInitialValues, setScale) {
-  const newCurrent = core.adjust(
-    { width: img.naturalWidth, height: img.naturalHeight },
-    window.innerWidth,
-    window.innerHeight - 40,
-    40,
-  );
-
-  current.set(newCurrent);
-
-  const initial = {
-    naturalWidth: img.naturalWidth,
-    naturalHeight: img.naturalHeight,
-  };
-
-  apply(img, initial, newCurrent);
-  apply(preview, initial, newCurrent);
-
-  setInitialValues({ ...newCurrent, ...initial });
-  setScale(newCurrent.width, img.naturalWidth);
-}
-
-export function load(img, preview, current, setInitialValues, setScale, loaded) {
-  function setInitial() {
-    init(img, preview, current, setInitialValues, setScale);
+    apply(params);
+    activate();
+    setInitialValues({ ...params, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
   }
 
-  if (loaded) {
-    setInitial();
+  if (img.naturalWidth && img.naturalHeight) {
+    init();
   } else {
     const wait = setInterval(() => {
-      const w = img.naturalWidth;
-      const h = img.naturalHeight;
-      if (w && h) {
+      if (img.naturalWidth && img.naturalHeight) {
         clearInterval(wait);
-        setInitial();
+        init();
       }
     }, 30);
   }

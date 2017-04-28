@@ -4,9 +4,7 @@ const ADD_IMAGES = `${prefix}/ADD_IMAGES`;
 const RESET = `${prefix}/RESET`;
 const SET_GALLERY_ID = `${prefix}/SET_GALLERY_ID`;
 const SET_GALLERY_TITLE = `${prefix}/SET_GALLERY_TITLE`;
-const SET_IMAGE_LOADED = `${prefix}/SET_IMAGE_LOADED`;
 const SET_INITIAL_VALUES = `${prefix}/SET_INITIAL_VALUES`;
-const SET_CURRENT_SCALE = `${prefix}/SET_CURRENT_SCALE`;
 const SET_CURRENT_IMAGE = `${prefix}/SET_CURRENT_IMAGE`;
 
 const getScale = (width, naturalWidth) => Number(width / naturalWidth);
@@ -39,9 +37,10 @@ export function setGalleryTitle(title) {
   };
 }
 
-export function setImageLoaded() {
+export function setCurrentImage(page) {
   return {
-    type: SET_IMAGE_LOADED,
+    type: SET_CURRENT_IMAGE,
+    page,
   };
 }
 
@@ -64,27 +63,12 @@ export function setInitialValues({ width, height, naturalWidth, naturalHeight, l
   };
 }
 
-export function setScale(width, naturalWidth) {
-  return {
-    type: SET_CURRENT_SCALE,
-    scale: getScale(width, naturalWidth),
-  };
-}
-
-export function setCurrentImage(page) {
-  return {
-    type: SET_CURRENT_IMAGE,
-    page,
-  };
-}
-
 const defaultState = {
   galleryId: '',
   galleryTitle: '',
   images: [],
   currentImg: 0,
   visible: false,
-  loaded: false,
   initial: {
     scale: 0,
     box: {},
@@ -93,7 +77,6 @@ const defaultState = {
     naturalWidth: 0,
     naturalHeight: 0,
   },
-  scale: 0,
 };
 
 export default function reducer(state = defaultState, action) {
@@ -107,17 +90,11 @@ export default function reducer(state = defaultState, action) {
     case ADD_IMAGES:
       return { ...state, images: action.images, currentImg: action.imagePosition };
 
-    case SET_IMAGE_LOADED:
-      return { ...state, loaded: true };
-
     case RESET:
       return { ...defaultState };
 
     case SET_INITIAL_VALUES:
       return { ...state, initial: action.initial };
-
-    case SET_CURRENT_SCALE:
-      return { ...state, scale: action.scale };
 
     case SET_CURRENT_IMAGE:
       return { ...state, currentImg: action.page, loaded: false };

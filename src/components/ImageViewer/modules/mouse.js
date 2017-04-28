@@ -1,37 +1,21 @@
 import * as core from './core';
 
-const cursor = {
-  left: 0,
-  top: 0,
-};
-
+const cursor = { left: 0, top: 0 };
 let move = false;
 
-function apply(elem, initial, newCurrent) {
-  elem.style.transform = `translate(${newCurrent.left}px, ${newCurrent.top}px) scale(${newCurrent.scale})`; // eslint-disable-line
-}
-
-export function handleWheel(scale, initial, current, setScale, preview, loaded) {
+export function handleWheel(initial, current, apply) {
   return (e) => {
     if ((current.scale === 1 && e.deltaY < 0) || (current.scale === initial.scale && e.deltaY > 0)) {
       return;
     }
 
-    const newCurrent = core.zoom(e, { initial, current });
-    apply(e.target, initial, newCurrent);
-
-    if (!loaded) {
-      apply(preview, initial, newCurrent);
-    }
-
-    current.set(newCurrent);
-    // setScale(newCurrent.width, initial.naturalWidth);
+    apply(core.zoom(e, { initial, current }));
   };
 }
 
-export function handleDoubleClick(scale, initial, current, setScale, preview, loaded) {
+export function handleDoubleClick(initial, current, apply) {
   return (e) => {
-    const newCurrent = (() => {
+    const params = (() => {
       if (current.scale === 1) {
         return core.zoom(e, { initial, current }, { min: true });
       }
@@ -39,18 +23,11 @@ export function handleDoubleClick(scale, initial, current, setScale, preview, lo
       return core.zoom(e, { initial, current }, { max: true });
     })();
 
-    apply(e.target, initial, newCurrent);
-
-    if (!loaded) {
-      apply(preview, initial, newCurrent);
-    }
-
-    current.set(newCurrent);
-    // setScale(newCurrent.width, initial.naturalWidth);
+    apply(params);
   };
 }
 
-export function handleMouseDown(scale, initial, current) {
+export function handleMouseDown(initial, current) {
   return (e) => {
     cursor.left = e.clientX;
     cursor.top = e.clientY;
@@ -68,49 +45,22 @@ export function handleMouseDown(scale, initial, current) {
   };
 }
 
-export function handleMouseMove(img, initial, current, preview, loaded) {
+export function handleMouseMove(initial, current, apply) {
   return (event) => {
     if (!move) return;
 
     const rangeX = event.clientX - cursor.left;
     const rangeY = event.clientY - cursor.top;
 
-    let left = 0;
-    let top = 0;
+    const left = rangeX < 0
+      ? core.moveLeft(rangeX, current.left, current.width, window.innerWidth)
+      : core.moveRight(rangeX, current.left, current.width, window.innerWidth);
 
-    if (rangeX < 0) {
-      left = core.moveLeft(rangeX, current.left, current.width, window.innerWidth);
-    } else {
-      left = core.moveRight(rangeX, current.left, current.width, window.innerWidth);
-    }
+    const top = rangeY < 0
+      ? core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40)
+      : core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
 
-    if (rangeY < 0) {
-      top = core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40);
-    } else {
-      top = core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
-    }
-
-    const newCurrent = {
-      top,
-      left,
-      width: current.width,
-      height: current.height,
-      scale: current.scale,
-    };
-
-    // main
-    if (current.left !== left || current.top !== top) {
-      apply(img, initial, newCurrent);
-    }
-
-    // preview
-    if (!loaded) {
-      if (current.left !== left || current.top !== top) {
-        apply(preview, initial, newCurrent);
-      }
-    }
-
-    current.set({ left, top, width: current.width, height: current.height, scale: current.scale });
+    apply({ left, top });
 
     cursor.left = event.clientX;
     cursor.top = event.clientY;
