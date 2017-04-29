@@ -2,6 +2,16 @@ import * as core from './core';
 
 const cursor = { left: 0, top: 0 };
 let pan;
+const timeConstant = 325;
+let offset = 0;
+let velocity;
+let frame;
+let timestamp;
+let ticker;
+let amplitude;
+let target;
+
+let prevY = 0;
 
 let swipe;
 let targetLeft;
@@ -11,7 +21,49 @@ let pinch;
 let distance;
 let distanceMove;
 
+function track() {
+  const now = Date.now();
+  const elapsed = now - timestamp;
+  timestamp = now;
+  const delta = offset - frame; // delta - сколько пролистнули в px
+  frame = offset; // -frame - реальное положение top
+
+  const v = (1000 * delta) / (1 + elapsed); // v - px / s. Может быть как положительным, так и отрицательным.
+  velocity = (0.8 * v) + (0.2 * velocity);
+}
+
+function scroll(y, current, apply) {
+  const rangeY = prevY - y;
+
+  offset = y;
+
+  const top = rangeY < 0
+    ? core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40)
+    : core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
+
+  apply({ top });
+  // view.style[xform] = 'translateY(' + (-offset) + 'px)';
+  prevY = y;
+}
+
+function autoScroll(current, apply) {
+  let elapsed;
+  let delta;
+
+  if (amplitude) {
+    elapsed = Date.now() - timestamp;
+    delta = -amplitude * Math.exp(-elapsed / timeConstant);
+    if (delta > 0.5 || delta < -0.5) {
+      scroll(target + delta, current, apply);
+      requestAnimationFrame(() => { autoScroll(current, apply); });
+    } else {
+      scroll(target, current, apply);
+    }
+  }
+}
+
 export function handleTouchStart(initial, current, apply) {
+
   return (e) => {
     if (animationId) {
       apply({ left: initial.box.left });
@@ -20,6 +72,14 @@ export function handleTouchStart(initial, current, apply) {
 
     if (e.touches.length === 1 && current.scale !== initial.scale) {
       pan = true;
+
+      velocity = 0;
+      amplitude = 0;
+      frame = offset;
+      timestamp = Date.now();
+
+      clearInterval(ticker);
+      ticker = setInterval(track, 100);
     } else if (e.touches.length === 1 && current.scale === initial.scale) {
       swipe = true;
       targetLeft = initial.box.left;
@@ -87,10 +147,17 @@ function handlePinch(touches, initial, current, apply) {
 
 export function handleTouchMove(initial, current, apply, navActions, imgPosition, totalImg) {
   return (e) => {
-    e.preventDefault();
-
     if (pan) {
-      handlePan(e.touches[0], current, apply);
+      const y = e.touches[0].clientY;
+      const delta = cursor.top - y;
+
+      // handlePan(e.touches[0], current, apply);
+
+      if (delta > 2 || delta < -2) {
+        cursor.top = y;
+        scroll(offset + delta, current, apply);
+      }
+
       return;
     }
 
@@ -137,7 +204,7 @@ export function handleTouchMove(initial, current, apply, navActions, imgPosition
   };
 }
 
-function smoothReturn(current, apply) {
+/*function smoothReturn(current, apply) {
   const nextLeft = (() => {
     let left = 0;
 
@@ -165,17 +232,25 @@ function smoothReturn(current, apply) {
   } else {
     cancelAnimationFrame(animationId);
   }
-}
+}*/
 
 export function handleTouchEnd(current, apply) {
   return () => {
     if (pan) {
       pan = false;
+      clearInterval(ticker);
+
+      if (velocity > 10 || velocity < -10) {
+        amplitude = 0.8 * velocity;
+        target = Math.round(offset + amplitude);
+        timestamp = Date.now();
+        requestAnimationFrame(() => { autoScroll(current, apply); });
+      }
     }
 
     if (swipe) {
       swipe = false;
-      animationId = requestAnimationFrame(() => { smoothReturn(current, apply); });
+      // animationId = requestAnimationFrame(() => { smoothReturn(current, apply); });
     }
 
     if (pinch) {
