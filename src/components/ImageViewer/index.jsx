@@ -251,7 +251,7 @@ class ImageViewer extends Component {
             onWheel={mouse.handleWheel(initial, this.current, this.apply)}
             onMouseDown={mouse.handleMouseDown(initial, this.current)}
             onDoubleClick={mouse.handleDoubleClick(initial, this.current, this.apply)}
-            onTouchStart={touch.handleTouchStart(initial, this.current)}
+            onTouchStart={touch.handleTouchStart(initial, this.current, this.apply)}
             onTouchMove={touch.handleTouchMove(initial, this.current, this.apply, this.nav, currentImg, images.length)}
             onTouchEnd={touch.handleTouchEnd(this.current, this.apply)}
           />

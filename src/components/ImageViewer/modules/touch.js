@@ -4,19 +4,25 @@ const cursor = { left: 0, top: 0 };
 let pan;
 
 let swipe;
-let currentLeft;
+let targetLeft;
+let animationId;
 
 let pinch;
 let distance;
 let distanceMove;
 
-export function handleTouchStart(initial, current) {
+export function handleTouchStart(initial, current, apply) {
   return (e) => {
+    if (animationId) {
+      apply({ left: initial.box.left });
+      cancelAnimationFrame(animationId);
+    }
+
     if (e.touches.length === 1 && current.scale !== initial.scale) {
       pan = true;
     } else if (e.touches.length === 1 && current.scale === initial.scale) {
       swipe = true;
-      currentLeft = current.left;
+      targetLeft = initial.box.left;
     } else if (e.touches.length === 2) {
       pan = false;
       swipe = false;
@@ -99,7 +105,7 @@ export function handleTouchMove(initial, current, apply, navActions, imgPosition
         left = current.left + (e.touches[0].clientX - cursor.left);
         apply({ left });
 
-        if (Math.abs(left - currentLeft) >= 100) {
+        if (Math.abs(left - targetLeft) >= 100) {
           swipe = false;
           navActions.nextImg();
           return;
@@ -114,7 +120,7 @@ export function handleTouchMove(initial, current, apply, navActions, imgPosition
         left = current.left - (cursor.left - e.touches[0].clientX);
         apply({ left });
 
-        if (Math.abs(left - currentLeft) >= 100) {
+        if (Math.abs(left - targetLeft) >= 100) {
           swipe = false;
           navActions.prevImg();
           return;
@@ -131,6 +137,36 @@ export function handleTouchMove(initial, current, apply, navActions, imgPosition
   };
 }
 
+function smoothReturn(current, apply) {
+  const nextLeft = (() => {
+    let left = 0;
+
+    if (current.left < targetLeft) {
+      left = current.left + 8;
+
+      if (left > targetLeft) {
+        return targetLeft;
+      }
+    } else {
+      left = current.left - 8;
+
+      if (left < targetLeft) {
+        return targetLeft;
+      }
+    }
+
+    return left;
+  })();
+
+  apply({ left: nextLeft });
+
+  if (nextLeft !== targetLeft) {
+    animationId = requestAnimationFrame(() => { smoothReturn(current, apply); });
+  } else {
+    cancelAnimationFrame(animationId);
+  }
+}
+
 export function handleTouchEnd(current, apply) {
   return () => {
     if (pan) {
@@ -139,7 +175,7 @@ export function handleTouchEnd(current, apply) {
 
     if (swipe) {
       swipe = false;
-      apply({ left: currentLeft });
+      animationId = requestAnimationFrame(() => { smoothReturn(current, apply); });
     }
 
     if (pinch) {
