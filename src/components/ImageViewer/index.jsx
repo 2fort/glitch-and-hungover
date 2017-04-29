@@ -45,6 +45,7 @@ class ImageViewer extends Component {
     this.dom = { image: null, preview: null, scale: null };
     this.current = { left: 0, top: 0, width: 0, height: 0, scale: 0 };
     this.loaded = false;
+    this.nav = { prevImg: this.prevImg, nextImg: this.nextImg, close: this.close };
 
     document.body.classList.add('overlay-active');
     document.documentElement.classList.add('html-noscroll');
@@ -52,7 +53,8 @@ class ImageViewer extends Component {
     document.querySelector('meta[name=viewport]')
       .setAttribute('content', 'initial-scale=1, maximum-scale=1.0, user-scalable=0');
 
-    document.onkeydown = keys(() => this.props);
+    document.onkeydown = keys(this.nav);
+
     window.onresize = loading.handleResizeWindow(() => ({
       initial: this.props.initial,
       current: this.current,
@@ -134,8 +136,34 @@ class ImageViewer extends Component {
     }
   }
 
+  prevImg = () => {
+    const { currentImg, history, galleryId, modal } = this.props;
+
+    if (currentImg !== 1) {
+      history.replace(`/${galleryId}/${currentImg - 1}`, { modal });
+    }
+  }
+
+  nextImg = () => {
+    const { currentImg, images, history, galleryId, modal } = this.props;
+
+    if (currentImg !== images.length) {
+      history.replace(`/${galleryId}/${currentImg + 1}`, { modal });
+    }
+  }
+
+  close = () => {
+    const { history, modal } = this.props;
+
+    if (modal) {
+      history.goBack();
+    } else {
+      history.push('/');
+    }
+  }
+
   render() {
-    const { galleryTitle, galleryId, images, currentImg, modal, initial, history } = this.props;
+    const { galleryTitle, galleryId, images, currentImg, modal, initial } = this.props;
 
     if (!currentImg) return null;
 
@@ -149,18 +177,16 @@ class ImageViewer extends Component {
         onMouseLeave={mouse.handleMouseUp(this.dom.image)}
       >
         <div className={css.topbar}>
-          {modal
-            ? <button className={classes(css.closeBtn, 'btn btn-link')} type="button" onClick={() => { history.goBack(); }}>
-              <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
-            </button>
-            : <Link to="/" className={classes(css.closeBtn, 'btn btn-link')} title="Назад">
-              <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
-            </Link>
-          }
+          <button className={classes(css.closeBtn, 'btn btn-link')} type="button" title="Назад" onClick={this.close}>
+            <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
+          </button>
+
           <div className={css.title}>
             {galleryTitle}, {currentImg} / {images.length}
           </div>
+
           <div className={css.scale} ref={(el) => { this.dom.scale = el; }} />
+
           <a
             href={`/img/comics/${images[currentImg - 1].large}`}
             className={classes(css.downloadBtn, 'btn btn-link')}
@@ -218,7 +244,7 @@ class ImageViewer extends Component {
             className={css.fullimg}
             alt={currentImg}
             key={`${currentImg} full`}
-            src={`/img/comics/${images[currentImg - 1].large}`}
+            src={`/img/comics/${images[currentImg - 1].medium}`}
             // src={'/img/example.jpg'}
             ref={(el) => { this.dom.image = el; }}
             onLoad={this.hidePreview}
@@ -226,8 +252,8 @@ class ImageViewer extends Component {
             onMouseDown={mouse.handleMouseDown(initial, this.current)}
             onDoubleClick={mouse.handleDoubleClick(initial, this.current, this.apply)}
             onTouchStart={touch.handleTouchStart(initial, this.current)}
-            onTouchMove={touch.handleTouchMove(initial, this.current, this.apply)}
-            onTouchEnd={touch.handleTouchEnd(this.current)}
+            onTouchMove={touch.handleTouchMove(initial, this.current, this.apply, this.nav, currentImg, images.length)}
+            onTouchEnd={touch.handleTouchEnd(this.current, this.apply)}
           />
         </div>
       </div>

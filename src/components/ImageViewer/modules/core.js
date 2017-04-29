@@ -4,7 +4,7 @@ export function adjust(img, viewportWidth, viewportHeight, offsetY) {
     height: img.height,
     left: 0,
     top: 0,
-    scale: 0,
+    scale: 1,
   };
 
   if (img.width > viewportWidth || img.height > viewportHeight) {

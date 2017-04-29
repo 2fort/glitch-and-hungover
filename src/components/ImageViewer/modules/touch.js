@@ -1,13 +1,14 @@
 import * as core from './core';
 
 const cursor = { left: 0, top: 0 };
+let pan;
+
+let swipe;
+let currentLeft;
+
+let pinch;
 let distance;
 let distanceMove;
-let pan;
-let swipe;
-let swipeLeft;
-let swipeRight;
-let pinch;
 
 export function handleTouchStart(initial, current) {
   return (e) => {
@@ -15,15 +16,15 @@ export function handleTouchStart(initial, current) {
       pan = true;
     } else if (e.touches.length === 1 && current.scale === initial.scale) {
       swipe = true;
+      currentLeft = current.left;
     } else if (e.touches.length === 2) {
       pan = false;
       swipe = false;
       pinch = true;
     }
 
-    const touch = e.touches[0];
-    cursor.left = touch.clientX;
-    cursor.top = touch.clientY;
+    cursor.left = e.touches[0].clientX;
+    cursor.top = e.touches[0].clientY;
   };
 }
 
@@ -76,69 +77,69 @@ function handlePinch(touches, initial, current, apply) {
   const e = { clientX, clientY, deltaY };
 
   apply(core.zoom(e, { initial, current }, { zoom: current.scale + (distanceMove / 200) }));
-  // apply(core.zoom(e, { initial, current }, { zoomFactor: 2.5 }));
 }
 
-export function handleTouchMove(initial, current, apply) {
+export function handleTouchMove(initial, current, apply, navActions, imgPosition, totalImg) {
   return (e) => {
     e.preventDefault();
+
     if (pan) {
       handlePan(e.touches[0], current, apply);
       return;
     }
+
     if (swipe) {
+      let left;
+
       if (e.touches[0].clientX - cursor.left < 0) {
-        console.log('It is left swipe!');
-        swipeLeft = true;
+        if (imgPosition === totalImg) {
+          return;
+        }
+
+        left = current.left + (e.touches[0].clientX - cursor.left);
+        apply({ left });
+
+        if (Math.abs(left - currentLeft) >= 100) {
+          swipe = false;
+          navActions.nextImg();
+          return;
+        }
+
+        cursor.left = e.touches[0].clientX;
+      } else if (e.touches[0].clientX - cursor.left > 0) {
+        if (imgPosition === 1) {
+          return;
+        }
+
+        left = current.left - (cursor.left - e.touches[0].clientX);
+        apply({ left });
+
+        if (Math.abs(left - currentLeft) >= 100) {
+          swipe = false;
+          navActions.prevImg();
+          return;
+        }
       }
 
-      if (e.touches[0].clientX - cursor.left > 0) {
-        console.log('It is right swipe!');
-        swipeRight = true;
-      }
+      cursor.left = e.touches[0].clientX;
+      return;
     }
+
     if (pinch) {
       handlePinch(e.touches, initial, current, apply);
-      return;
     }
   };
 }
 
-/* swipeLeft = (touch) => {
-  this.img.style.transition = 'none';
-  const rangeX = touch.clientX - this.cursor.left;
-  const currentLeft = this.current.left;
-  const currentTop = this.current.top;
-
-  const left = currentLeft + rangeX;
-
-  if (touch.clientX - this.cursor.left <= -75) {
-    this.onRightKeyDown();
-  }
-
-  // main
-  this.img.style.transform = `translate3d(${left}px, ${currentTop}px, 0)`;
-
-  // preview
-  if (!this.props.loaded) {
-    this.preview.style.transform = `translate3d(${left}px, ${currentTop}px, 0)`;
-  }
-}
-
-swipeRight = (touch) => {
-  if (touch.clientX - this.cursor.left >= 75) {
-    this.onLeftKeyDown();
-  }
-}*/
-
-export function handleTouchEnd(current) {
+export function handleTouchEnd(current, apply) {
   return () => {
-    swipe = false;
-    swipeLeft = false;
-    swipeRight = false;
-
     if (pan) {
       pan = false;
+    }
+
+    if (swipe) {
+      swipe = false;
+      apply({ left: currentLeft });
     }
 
     if (pinch) {
@@ -146,18 +147,5 @@ export function handleTouchEnd(current) {
       distance = null;
       distanceMove = null;
     }
-
-    /* if (this.swipeLeftActive) {
-      this.swipeLeftActive = false;
-
-      const currentLeft = this.current.left;
-      const currentTop = this.current.top;
-
-      window.setTimeout(() => {
-        this.img.style.transition = 'all 300ms linear';
-        this.img.style.transform = `translate3d(${currentLeft}px, ${currentTop}px, 0)`;
-      }, 50);
-    }*/
-    // console.log('onTouchEnd', e.touches[0]);
   };
 }
