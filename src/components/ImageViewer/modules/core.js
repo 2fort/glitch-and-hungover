@@ -151,14 +151,15 @@ export function zoom(e, img, newOptions) {
     const top = img.current.top + newTopSide;
 
     // sticky top
-    if (img.current.top <= img.initial.box.top && top >= img.initial.box.top) {
+    if (Math.round(img.current.top) <= Math.round(img.initial.box.top)
+      && Math.round(top) >= Math.round(img.initial.box.top)) {
       return img.initial.box.top;
     }
 
     // sticky bottom
     const newboxBot = newImg.height + top;
-    if (img.current.height + img.current.top >= img.initial.box.bottom
-      && newImg.height + top <= img.initial.box.bottom) {
+    if (Math.round(img.current.height + img.current.top) >= Math.round(img.initial.box.bottom)
+      && Math.round(newImg.height + top) <= Math.round(img.initial.box.bottom)) {
       return top + (img.initial.box.bottom - newboxBot);
     }
 

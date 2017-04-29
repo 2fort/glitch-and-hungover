@@ -17,6 +17,7 @@ export function handleTouchStart(initial, current) {
       swipe = true;
     } else if (e.touches.length === 2) {
       pan = false;
+      swipe = false;
       pinch = true;
     }
 
@@ -85,22 +86,22 @@ export function handleTouchMove(initial, current, apply) {
       handlePan(e.touches[0], current, apply);
       return;
     }
+    if (swipe) {
+      if (e.touches[0].clientX - cursor.left < 0) {
+        console.log('It is left swipe!');
+        swipeLeft = true;
+      }
+
+      if (e.touches[0].clientX - cursor.left > 0) {
+        console.log('It is right swipe!');
+        swipeRight = true;
+      }
+    }
     if (pinch) {
       handlePinch(e.touches, initial, current, apply);
       return;
     }
   };
-
-  /* if (e.touches.length === 1 && this.props.scale === this.props.initial.scale) {
-    if (e.touches[0].clientX - this.cursor.left < 0) {
-      console.log('It is left swipe!');
-      this.swipeLeftActive = true;
-    }
-
-    if (e.touches[0].clientX - this.cursor.left > 0) {
-      console.log('It is right swipe!');
-    }
-  }*/
 }
 
 /* swipeLeft = (touch) => {

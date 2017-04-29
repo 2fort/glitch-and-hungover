@@ -3,46 +3,42 @@ import * as core from './core';
 const initialWindow = { width: window.innerWidth, height: window.innerHeight };
 let resizeDebounce;
 
-export function load(img, apply, setInitialValues, activate) {
-  function init() {
-    const params = core.adjust(
-      { width: img.naturalWidth, height: img.naturalHeight },
-      window.innerWidth,
-      window.innerHeight - 40,
-      40,
-    );
+function init(img, apply, setInitialValues) {
+  const params = core.adjust(
+    { width: img.naturalWidth, height: img.naturalHeight },
+    window.innerWidth,
+    window.innerHeight - 40,
+    40,
+  );
 
-    apply(params);
-    activate();
-    setInitialValues({ ...params, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
-  }
-
-  if (img.naturalWidth && img.naturalHeight) {
-    init();
-  } else {
-    const wait = setInterval(() => {
-      if (img.naturalWidth && img.naturalHeight) {
-        clearInterval(wait);
-        init();
-      }
-    }, 30);
-  }
+  apply(params);
+  setInitialValues({ ...params, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
 }
 
-export function reload(initial, setInitialValues) {
-  const newCurrent = core.adjust(
+function reload(initial, setInitialValues) {
+  const params = core.adjust(
     { width: initial.naturalWidth, height: initial.naturalHeight },
     window.innerWidth,
     window.innerHeight - 40,
     40,
   );
 
-  setInitialValues({
-    ...newCurrent,
-    naturalWidth: initial.naturalWidth,
-    naturalHeight: initial.naturalHeight,
-    scale: initial.scale,
-  });
+  setInitialValues({ ...params, naturalWidth: initial.naturalWidth, naturalHeight: initial.naturalHeight });
+}
+
+export function load(img, apply, setInitialValues, activate) {
+  if (img.naturalWidth && img.naturalHeight) {
+    init(img, apply, setInitialValues);
+    activate();
+  } else {
+    const wait = setInterval(() => {
+      if (img.naturalWidth && img.naturalHeight) {
+        clearInterval(wait);
+        init(img, apply, setInitialValues);
+        activate();
+      }
+    }, 30);
+  }
 }
 
 export function handleResizeWindow(getProps) {
@@ -50,15 +46,16 @@ export function handleResizeWindow(getProps) {
     clearTimeout(resizeDebounce);
 
     resizeDebounce = setTimeout(() => {
-      const { props, img, preview, current } = getProps();
+      const { initial, current, apply, setInitialValues } = getProps();
 
       const differenceX = Math.abs(window.innerWidth - initialWindow.width);
       const differenceY = Math.abs(window.innerHeight - initialWindow.height);
 
-      if (props.scale === props.initial.scale || differenceX > 80 || differenceY > 80) {
-        load(img, preview, current, props.actions.setInitialValues, props.actions.setScale, props.loaded);
+      if (current.scale === initial.scale || differenceX > 80 || differenceY > 80) {
+        const img = { naturalWidth: initial.naturalWidth, naturalHeight: initial.naturalHeight };
+        init(img, apply, setInitialValues);
       } else {
-        reload(props.initial, props.actions.setInitialValues);
+        reload(initial, setInitialValues);
       }
 
       initialWindow.width = window.innerWidth;

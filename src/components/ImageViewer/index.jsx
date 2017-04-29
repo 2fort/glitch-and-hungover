@@ -54,10 +54,10 @@ class ImageViewer extends Component {
 
     document.onkeydown = keys(() => this.props);
     window.onresize = loading.handleResizeWindow(() => ({
-      props: this.props,
-      img: this.img,
-      preview: this.preview,
+      initial: this.props.initial,
       current: this.current,
+      setInitialValues: this.props.actions.setInitialValues,
+      apply: this.apply,
     }));
   }
 

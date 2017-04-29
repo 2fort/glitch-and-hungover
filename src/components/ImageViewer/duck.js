@@ -7,8 +7,6 @@ const SET_GALLERY_TITLE = `${prefix}/SET_GALLERY_TITLE`;
 const SET_INITIAL_VALUES = `${prefix}/SET_INITIAL_VALUES`;
 const SET_CURRENT_IMAGE = `${prefix}/SET_CURRENT_IMAGE`;
 
-const getScale = (width, naturalWidth) => Number(width / naturalWidth);
-
 export function addImages(images, imagePosition) {
   return {
     type: ADD_IMAGES,
@@ -44,11 +42,11 @@ export function setCurrentImage(page) {
   };
 }
 
-export function setInitialValues({ width, height, naturalWidth, naturalHeight, left, top }) {
+export function setInitialValues({ width, height, naturalWidth, naturalHeight, left, top, scale }) {
   return {
     type: SET_INITIAL_VALUES,
     initial: {
-      scale: getScale(width, naturalWidth),
+      scale,
       box: {
         top,
         left,
@@ -97,7 +95,7 @@ export default function reducer(state = defaultState, action) {
       return { ...state, initial: action.initial };
 
     case SET_CURRENT_IMAGE:
-      return { ...state, currentImg: action.page, loaded: false };
+      return { ...state, currentImg: action.page };
 
     default:
       return state;
