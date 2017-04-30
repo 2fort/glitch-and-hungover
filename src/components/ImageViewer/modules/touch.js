@@ -1,6 +1,9 @@
 import * as core from './core';
 
 const cursor = { left: 0, top: 0 };
+
+let lastTouchEnd;
+
 let pan;
 let ticker;
 let timestamp;
@@ -14,10 +17,6 @@ const kinetic = {
   target: 0,
 };
 const timeConstant = 325;
-
-let swipe;
-let targetLeft;
-let animationId;
 
 let pinch;
 let distance;
@@ -51,26 +50,30 @@ function scroll(x, y, current, apply) {
   kineticX.offset = x;
   kineticY.offset = y;
 
+  const left = rangeX < 0
+    ? core.moveLeft(rangeX, current.left, current.width, window.innerWidth)
+    : core.moveRight(rangeX, current.left, current.width, window.innerWidth);
+
+  if (left === current.left) {
+    kineticX.amplitude = 0;
+  }
+
   const top = rangeY < 0
     ? core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40)
     : core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
 
-  const left = rangeX < 0
-    ? core.moveLeft(rangeX, current.left, current.width, window.innerWidth)
-    : core.moveRight(rangeX, current.left, current.width, window.innerWidth);
+  if (top === current.top) {
+    kineticY.amplitude = 0;
+  }
 
   apply({ left, top });
 }
 
 function autoScroll(current, apply) {
-  let elapsed;
-  let deltaX;
-  let deltaY;
-
   if (kineticX.amplitude || kineticY.amplitude) {
-    elapsed = Date.now() - timestamp;
-    deltaX = -kineticX.amplitude * Math.exp(-elapsed / timeConstant);
-    deltaY = -kineticY.amplitude * Math.exp(-elapsed / timeConstant);
+    const elapsed = Date.now() - timestamp;
+    const deltaX = -kineticX.amplitude * Math.exp(-elapsed / timeConstant);
+    const deltaY = -kineticY.amplitude * Math.exp(-elapsed / timeConstant);
 
     if (deltaX > 0.5 || deltaX < -0.5 || deltaY > 0.5 || deltaY < -0.5) {
       scroll(kineticX.target + deltaX, kineticY.target + deltaY, current, apply);
@@ -81,12 +84,22 @@ function autoScroll(current, apply) {
   }
 }
 
+function doubleTap(initial, current, apply) {
+  const coordinates = { clientX: cursor.left, clientY: cursor.top };
+  const params = (() => {
+    if (current.scale === 1) {
+      return core.zoom(coordinates, { initial, current }, { min: true });
+    }
+
+    return core.zoom(coordinates, { initial, current }, { max: true });
+  })();
+
+  apply(params);
+}
+
 export function handleTouchStart(initial, current, apply) {
   return (e) => {
-    if (animationId) {
-      apply({ left: initial.box.left });
-      cancelAnimationFrame(animationId);
-    }
+    e.preventDefault();
 
     if (e.touches.length === 1 && current.scale !== initial.scale) {
       pan = true;
@@ -103,15 +116,24 @@ export function handleTouchStart(initial, current, apply) {
       timestamp = Date.now();
 
       clearInterval(ticker);
+
       ticker = setInterval(track, 50);
-    } else if (e.touches.length === 1 && current.scale === initial.scale) {
-      swipe = true;
-      targetLeft = initial.box.left;
     } else if (e.touches.length === 2) {
       pan = false;
-      swipe = false;
       pinch = true;
     }
+
+    if (
+        e.touches.length === 1 &&
+        lastTouchEnd &&
+        lastTouchEnd + 300 > e.timeStamp &&
+        Math.abs(cursor.left - e.touches[0].clientX < 25) &&
+        Math.abs(cursor.top - e.touches[0].clientY < 25)
+      ) {
+      doubleTap(initial, current, apply);
+    }
+
+    lastTouchEnd = e.timeStamp;
 
     cursor.left = e.touches[0].clientX;
     cursor.top = e.touches[0].clientY;
@@ -151,8 +173,9 @@ function handlePinch(touches, initial, current, apply) {
   apply(core.zoom(e, { initial, current }, { zoom: current.scale + (distanceMove / 200) }));
 }
 
-export function handleTouchMove(initial, current, apply, navActions, imgPosition, totalImg) {
+export function handleTouchMove(initial, current, apply) {
   return (e) => {
+    e.preventDefault();
     if (pan) {
       const deltaX = cursor.left - e.touches[0].clientX;
       const deltaY = cursor.top - e.touches[0].clientY;
@@ -166,81 +189,16 @@ export function handleTouchMove(initial, current, apply, navActions, imgPosition
       return;
     }
 
-    /*if (swipe) {
-      let left;
-
-      if (e.touches[0].clientX - cursor.left < 0) {
-        if (imgPosition === totalImg) {
-          return;
-        }
-
-        left = current.left + (e.touches[0].clientX - cursor.left);
-        apply({ left });
-
-        if (Math.abs(left - targetLeft) >= 100) {
-          swipe = false;
-          navActions.nextImg();
-          return;
-        }
-
-        cursor.left = e.touches[0].clientX;
-      } else if (e.touches[0].clientX - cursor.left > 0) {
-        if (imgPosition === 1) {
-          return;
-        }
-
-        left = current.left - (cursor.left - e.touches[0].clientX);
-        apply({ left });
-
-        if (Math.abs(left - targetLeft) >= 100) {
-          swipe = false;
-          navActions.prevImg();
-          return;
-        }
-      }
-
-      cursor.left = e.touches[0].clientX;
-      return;
-    }*/
-
     if (pinch) {
       handlePinch(e.touches, initial, current, apply);
     }
   };
 }
 
-/*function smoothReturn(current, apply) {
-  const nextLeft = (() => {
-    let left = 0;
+export function handleTouchEnd(initial, current, apply) {
+  return (e) => {
+    e.preventDefault();
 
-    if (current.left < targetLeft) {
-      left = current.left + 8;
-
-      if (left > targetLeft) {
-        return targetLeft;
-      }
-    } else {
-      left = current.left - 8;
-
-      if (left < targetLeft) {
-        return targetLeft;
-      }
-    }
-
-    return left;
-  })();
-
-  apply({ left: nextLeft });
-
-  if (nextLeft !== targetLeft) {
-    animationId = requestAnimationFrame(() => { smoothReturn(current, apply); });
-  } else {
-    cancelAnimationFrame(animationId);
-  }
-}*/
-
-export function handleTouchEnd(current, apply) {
-  return () => {
     if (pan) {
       pan = false;
       clearInterval(ticker);
@@ -255,11 +213,6 @@ export function handleTouchEnd(current, apply) {
         timestamp = Date.now();
         requestAnimationFrame(() => { autoScroll(current, apply); });
       }
-    }
-
-    if (swipe) {
-      swipe = false;
-      // animationId = requestAnimationFrame(() => { smoothReturn(current, apply); });
     }
 
     if (pinch) {

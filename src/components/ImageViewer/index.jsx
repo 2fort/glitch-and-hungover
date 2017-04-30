@@ -244,16 +244,15 @@ class ImageViewer extends Component {
             className={css.fullimg}
             alt={currentImg}
             key={`${currentImg} full`}
-            src={`/img/comics/${images[currentImg - 1].large}`}
-            // src={'/img/example.jpg'}
+            src={`/img/comics/${images[currentImg - 1].medium}`}
             ref={(el) => { this.dom.image = el; }}
             onLoad={this.hidePreview}
             onWheel={mouse.handleWheel(initial, this.current, this.apply)}
             onMouseDown={mouse.handleMouseDown(initial, this.current)}
             onDoubleClick={mouse.handleDoubleClick(initial, this.current, this.apply)}
             onTouchStart={touch.handleTouchStart(initial, this.current, this.apply)}
-            onTouchMove={touch.handleTouchMove(initial, this.current, this.apply, this.nav, currentImg, images.length)}
-            onTouchEnd={touch.handleTouchEnd(this.current, this.apply)}
+            onTouchMove={touch.handleTouchMove(initial, this.current, this.apply)}
+            onTouchEnd={touch.handleTouchEnd(initial, this.current, this.apply)}
           />
         </div>
       </div>
