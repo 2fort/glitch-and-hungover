@@ -2,16 +2,18 @@ import * as core from './core';
 
 const cursor = { left: 0, top: 0 };
 let pan;
-const timeConstant = 325;
-let offset = 0;
-let velocity;
-let frame;
-let timestamp;
 let ticker;
-let amplitude;
-let target;
-
-let prevY = 0;
+let timestamp;
+const kinetic = {
+  offset: 0,
+  velocity: 0,
+  frame: 0,
+  timestamp: 0,
+  ticker: 0,
+  amplitude: 0,
+  target: 0,
+};
+const timeConstant = 325;
 
 let swipe;
 let targetLeft;
@@ -21,49 +23,65 @@ let pinch;
 let distance;
 let distanceMove;
 
+const kineticX = Object.assign({}, kinetic);
+const kineticY = Object.assign({}, kinetic);
+
 function track() {
   const now = Date.now();
   const elapsed = now - timestamp;
   timestamp = now;
-  const delta = offset - frame; // delta - сколько пролистнули в px
-  frame = offset; // -frame - реальное положение top
 
-  const v = (1000 * delta) / (1 + elapsed); // v - px / s. Может быть как положительным, так и отрицательным.
-  velocity = (0.8 * v) + (0.2 * velocity);
+  const deltaX = kineticX.offset - kineticX.frame;
+  const deltaY = kineticY.offset - kineticY.frame;
+
+  kineticX.frame = kineticX.offset;
+  kineticY.frame = kineticY.offset;
+
+  const vX = (1000 * deltaX) / (1 + elapsed);
+  const vY = (1000 * deltaY) / (1 + elapsed);
+
+  kineticX.velocity = (0.8 * vX) + (0.2 * kineticX.velocity);
+  kineticY.velocity = (0.8 * vY) + (0.2 * kineticY.velocity);
 }
 
-function scroll(y, current, apply) {
-  const rangeY = prevY - y;
+function scroll(x, y, current, apply) {
+  const rangeX = kineticX.offset - x;
+  const rangeY = kineticY.offset - y;
 
-  offset = y;
+  kineticX.offset = x;
+  kineticY.offset = y;
 
   const top = rangeY < 0
     ? core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40)
     : core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
 
-  apply({ top });
-  // view.style[xform] = 'translateY(' + (-offset) + 'px)';
-  prevY = y;
+  const left = rangeX < 0
+    ? core.moveLeft(rangeX, current.left, current.width, window.innerWidth)
+    : core.moveRight(rangeX, current.left, current.width, window.innerWidth);
+
+  apply({ left, top });
 }
 
 function autoScroll(current, apply) {
   let elapsed;
-  let delta;
+  let deltaX;
+  let deltaY;
 
-  if (amplitude) {
+  if (kineticX.amplitude || kineticY.amplitude) {
     elapsed = Date.now() - timestamp;
-    delta = -amplitude * Math.exp(-elapsed / timeConstant);
-    if (delta > 0.5 || delta < -0.5) {
-      scroll(target + delta, current, apply);
+    deltaX = -kineticX.amplitude * Math.exp(-elapsed / timeConstant);
+    deltaY = -kineticY.amplitude * Math.exp(-elapsed / timeConstant);
+
+    if (deltaX > 0.5 || deltaX < -0.5 || deltaY > 0.5 || deltaY < -0.5) {
+      scroll(kineticX.target + deltaX, kineticY.target + deltaY, current, apply);
       requestAnimationFrame(() => { autoScroll(current, apply); });
     } else {
-      scroll(target, current, apply);
+      scroll(kineticX.target, kineticY.target, current, apply);
     }
   }
 }
 
 export function handleTouchStart(initial, current, apply) {
-
   return (e) => {
     if (animationId) {
       apply({ left: initial.box.left });
@@ -73,13 +91,19 @@ export function handleTouchStart(initial, current, apply) {
     if (e.touches.length === 1 && current.scale !== initial.scale) {
       pan = true;
 
-      velocity = 0;
-      amplitude = 0;
-      frame = offset;
+      kineticX.velocity = 0;
+      kineticY.velocity = 0;
+
+      kineticX.amplitude = 0;
+      kineticY.amplitude = 0;
+
+      kineticX.frame = kineticX.offset;
+      kineticY.frame = kineticY.offset;
+
       timestamp = Date.now();
 
       clearInterval(ticker);
-      ticker = setInterval(track, 100);
+      ticker = setInterval(track, 50);
     } else if (e.touches.length === 1 && current.scale === initial.scale) {
       swipe = true;
       targetLeft = initial.box.left;
@@ -92,24 +116,6 @@ export function handleTouchStart(initial, current, apply) {
     cursor.left = e.touches[0].clientX;
     cursor.top = e.touches[0].clientY;
   };
-}
-
-function handlePan(touch, current, apply) {
-  const rangeX = touch.clientX - cursor.left;
-  const rangeY = touch.clientY - cursor.top;
-
-  const left = rangeX < 0
-    ? core.moveLeft(rangeX, current.left, current.width, window.innerWidth)
-    : core.moveRight(rangeX, current.left, current.width, window.innerWidth);
-
-  const top = rangeY < 0
-    ? core.moveTop(rangeY, current.top, current.height, window.innerHeight - 40, 40)
-    : core.moveBottom(rangeY, current.top, current.height, window.innerHeight - 40, 40);
-
-  apply({ left, top });
-
-  cursor.left = touch.clientX;
-  cursor.top = touch.clientY;
 }
 
 function handlePinch(touches, initial, current, apply) {
@@ -148,20 +154,19 @@ function handlePinch(touches, initial, current, apply) {
 export function handleTouchMove(initial, current, apply, navActions, imgPosition, totalImg) {
   return (e) => {
     if (pan) {
-      const y = e.touches[0].clientY;
-      const delta = cursor.top - y;
+      const deltaX = cursor.left - e.touches[0].clientX;
+      const deltaY = cursor.top - e.touches[0].clientY;
 
-      // handlePan(e.touches[0], current, apply);
-
-      if (delta > 2 || delta < -2) {
-        cursor.top = y;
-        scroll(offset + delta, current, apply);
+      if (deltaY > 2 || deltaY < -2 || deltaX > 2 || deltaX < -2) {
+        cursor.left = e.touches[0].clientX;
+        cursor.top = e.touches[0].clientY;
+        scroll(kineticX.offset + deltaX, kineticY.offset + deltaY, current, apply);
       }
 
       return;
     }
 
-    if (swipe) {
+    /*if (swipe) {
       let left;
 
       if (e.touches[0].clientX - cursor.left < 0) {
@@ -196,7 +201,7 @@ export function handleTouchMove(initial, current, apply, navActions, imgPosition
 
       cursor.left = e.touches[0].clientX;
       return;
-    }
+    }*/
 
     if (pinch) {
       handlePinch(e.touches, initial, current, apply);
@@ -240,9 +245,13 @@ export function handleTouchEnd(current, apply) {
       pan = false;
       clearInterval(ticker);
 
-      if (velocity > 10 || velocity < -10) {
-        amplitude = 0.8 * velocity;
-        target = Math.round(offset + amplitude);
+      if (kineticX.velocity > 10 || kineticX.velocity < -10 || kineticY.velocity > 10 || kineticY.velocity < -10) {
+        kineticX.amplitude = 0.8 * kineticX.velocity;
+        kineticY.amplitude = 0.8 * kineticY.velocity;
+
+        kineticX.target = Math.round(kineticX.offset + kineticX.amplitude);
+        kineticY.target = Math.round(kineticY.offset + kineticY.amplitude);
+
         timestamp = Date.now();
         requestAnimationFrame(() => { autoScroll(current, apply); });
       }
