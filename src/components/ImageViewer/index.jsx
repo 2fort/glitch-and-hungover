@@ -185,8 +185,23 @@ class ImageViewer extends Component {
           </button>
 
           <div className={css.title}>
-            {galleryTitle}, {currentImg} / {images.length}
+            {galleryTitle},
           </div>
+
+          <div className={css.pageNumber}>
+            &nbsp;{currentImg} / {images.length}
+          </div>
+
+          <button
+            type="button"
+            className={classes(css.zoomBtn, 'btn btn-link')}
+            onClick={() => { this.apply(loading.adjustByWidth(initial, this.current, this.apply)); }}
+          >
+            <span className="fa-stack fa-lg">
+              <i className="fa fa-square-o fa-stack-2x" />
+              <i className="fa fa-arrows-h fa-stack-1x" />
+            </span>
+          </button>
 
           <div className={css.scale} ref={(el) => { this.dom.scale = el; }} />
 
@@ -247,7 +262,8 @@ class ImageViewer extends Component {
             className={css.fullimg}
             alt={currentImg}
             key={`${currentImg} full`}
-            src={`/img/comics/${images[currentImg - 1].medium}`}
+            src={`/img/comics/${images[currentImg - 1].large}`}
+            // src={`/img/example.jpg`}
             ref={(el) => { this.dom.image = el; }}
             onLoad={this.hidePreview}
             onWheel={mouse.handleWheel(initial, this.current, this.apply)}

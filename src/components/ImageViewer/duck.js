@@ -42,22 +42,10 @@ export function setCurrentImage(page) {
   };
 }
 
-export function setInitialValues({ width, height, naturalWidth, naturalHeight, left, top, scale }) {
+export function setInitialValues(values) {
   return {
     type: SET_INITIAL_VALUES,
-    initial: {
-      scale,
-      box: {
-        top,
-        left,
-        right: left + width,
-        bottom: top + height,
-      },
-      width,
-      height,
-      naturalWidth,
-      naturalHeight,
-    },
+    initial: values,
   };
 }
 

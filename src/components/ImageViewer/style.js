@@ -18,18 +18,29 @@ export const topbar = style(csstips.horizontal, {
   height: '41px',
   backgroundColor: 'rgba(20,20,20,0.85)',
   borderBottom: '1px solid rgba(255,255,255,0.2)',
+  textOverflow: 'ellipsis',
 });
 
 export const title = style({
+  margin: 'auto 0',
+  fontSize: '.95rem',
+  whiteSpace: 'nowrap',
+  textOverflow: 'ellipsis',
+  overflow: 'hidden',
+});
+
+export const pageNumber = style({
   margin: 'auto auto auto 0',
   fontSize: '.95rem',
+  whiteSpace: 'nowrap',
 });
 
 export const scale = style({
   margin: 'auto 7px auto 0',
   fontSize: '.95rem',
-  minWidth: '50px',
+  // minWidth: '50px',
   textAlign: 'right',
+  borderBottom: '1px dashed #FFFFFF',
 });
 
 const buttons = {
@@ -63,16 +74,18 @@ const buttons = {
 };
 
 export const closeBtn = style(buttons, {
-  padding: '8px 10px 7px 15px',
+  padding: '8px 10px 7px 12px',
   marginRight: 'auto',
 });
 
 export const zoomBtn = style(buttons, {
-  padding: '7px',
+  margin: 0,
+  lineHeight: 2,
+  fontSize: '0.6rem',
 });
 
 export const downloadBtn = style(buttons, {
-  padding: '10px 20px',
+  padding: '10px 14px 10px 12px',
 });
 
 export const navButton = style(buttons, {

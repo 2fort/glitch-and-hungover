@@ -175,6 +175,7 @@ function handlePinch(touches, initial, current, apply) {
 export function handleTouchMove(initial, current, apply) {
   return (e) => {
     e.preventDefault();
+
     if (pan) {
       const deltaX = cursor.left - e.touches[0].clientX;
       const deltaY = cursor.top - e.touches[0].clientY;
