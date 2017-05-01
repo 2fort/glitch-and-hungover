@@ -126,6 +126,8 @@ class ImageViewer extends Component {
 
     Object.assign(this.current, params);
 
+    if (!this.dom.image) return;
+
     this.dom.image.style.transform = `translate3d(${this.current.left}px, ${this.current.top}px, 0) ` +
       `scale3d(${this.current.scale}, ${this.current.scale}, 1)`;
 
@@ -175,6 +177,7 @@ class ImageViewer extends Component {
         onMouseMove={mouse.handleMouseMove(initial, this.current, this.apply)}
         onMouseUp={mouse.handleMouseUp(this.dom.image)}
         onMouseLeave={mouse.handleMouseUp(this.dom.image)}
+        onTouchMove={(e) => { e.preventDefault(); }}
       >
         <div className={css.topbar}>
           <button className={classes(css.closeBtn, 'btn btn-link')} type="button" title="Назад" onClick={this.close}>

@@ -3,6 +3,7 @@ import * as core from './core';
 const cursor = { left: 0, top: 0 };
 
 let lastTouchEnd;
+let same;
 
 let pan;
 let ticker;
@@ -125,15 +126,13 @@ export function handleTouchStart(initial, current, apply) {
 
     if (
         e.touches.length === 1 &&
-        lastTouchEnd &&
-        lastTouchEnd + 300 > e.timeStamp &&
         Math.abs(cursor.left - e.touches[0].clientX < 25) &&
         Math.abs(cursor.top - e.touches[0].clientY < 25)
       ) {
-      doubleTap(initial, current, apply);
+      same = true;
+    } else {
+      same = false;
     }
-
-    lastTouchEnd = e.timeStamp;
 
     cursor.left = e.touches[0].clientX;
     cursor.top = e.touches[0].clientY;
@@ -220,5 +219,11 @@ export function handleTouchEnd(initial, current, apply) {
       distance = null;
       distanceMove = null;
     }
+
+    if (lastTouchEnd && lastTouchEnd + 300 > e.timeStamp && same) {
+      doubleTap(initial, current, apply);
+    }
+
+    lastTouchEnd = e.timeStamp;
   };
 }
