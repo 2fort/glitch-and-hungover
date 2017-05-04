@@ -295,7 +295,7 @@ class ImageViewer extends Component {
             className={css.fullimg}
             alt={currentImg}
             key={`${currentImg} full`}
-            src={`/img/comics/${images[currentImg - 1].large}`}
+            src={`/img/comics/${images[currentImg - 1].medium}`}
             ref={(el) => { this.dom.image = el; }}
             onLoad={this.hidePreview}
             onWheel={mouse.handleWheel(initial, this.current, this.apply)}
