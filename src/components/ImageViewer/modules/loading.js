@@ -39,7 +39,7 @@ export function adjustByWidth(initial, current) {
   return current;
 }
 
-function init(img, apply, setInitialValues) {
+function init(img, apply, setInitialValues, scaleByWidth) {
   let params = core.adjust(
     { width: img.naturalWidth, height: img.naturalHeight },
     window.innerWidth,
@@ -49,9 +49,7 @@ function init(img, apply, setInitialValues) {
 
   const initial = getInitialValues({ ...params, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
 
-  const byWidth = false;
-
-  if (byWidth) {
+  if (scaleByWidth) {
     params = adjustByWidth(initial, params, apply);
   }
 
@@ -77,15 +75,15 @@ function reload(initial, setInitialValues) {
   setInitialValues(newInitial);
 }
 
-export function load(img, apply, setInitialValues, activate) {
+export function load(img, apply, setInitialValues, activate, scaleByWidth) {
   if (img.naturalWidth && img.naturalHeight) {
-    init(img, apply, setInitialValues);
+    init(img, apply, setInitialValues, scaleByWidth);
     activate();
   } else {
     const wait = setInterval(() => {
       if (img.naturalWidth && img.naturalHeight) {
         clearInterval(wait);
-        init(img, apply, setInitialValues);
+        init(img, apply, setInitialValues, scaleByWidth);
         activate();
       }
     }, 30);
@@ -97,14 +95,14 @@ export function handleResizeWindow(getProps) {
     clearTimeout(resizeDebounce);
 
     resizeDebounce = setTimeout(() => {
-      const { initial, current, apply, setInitialValues } = getProps();
+      const { initial, current, apply, setInitialValues, scaleByWidth } = getProps();
 
       const differenceX = Math.abs(window.innerWidth - initialWindow.width);
       const differenceY = Math.abs(window.innerHeight - initialWindow.height);
 
       if (current.scale === initial.scale || differenceX > 80 || differenceY > 80) {
         const img = { naturalWidth: initial.naturalWidth, naturalHeight: initial.naturalHeight };
-        init(img, apply, setInitialValues);
+        init(img, apply, setInitialValues, scaleByWidth);
       } else {
         reload(initial, setInitialValues);
       }

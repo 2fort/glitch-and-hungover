@@ -40,7 +40,12 @@ export const scale = style({
   fontSize: '.95rem',
   // minWidth: '50px',
   textAlign: 'right',
+  borderTop: 0,
   borderBottom: '1px dashed #FFFFFF',
+  borderLeft: 0,
+  borderRight: 0,
+  backgroundColor: 'transparent',
+  color: white.toHexString(),
 });
 
 const buttons = {
@@ -123,4 +128,28 @@ export const fullimg = style({
   visibility: 'hidden',
   zIndex: 100503,
   transformOrigin: '0 0',
+});
+
+export const byWidthModal = style({
+  position: 'fixed',
+  top: '50%',
+  left: '50%',
+  right: 'auto',
+  bottom: 'auto',
+  marginRight: '-50%',
+  transform: 'translate(-50%, -50%)',
+  zIndex: 100800,
+  backgroundColor: 'white',
+  padding: '15px',
+  maxWidth: '220px',
+  borderRadius: '5px',
+  textAlign: 'center',
+  $nest: {
+    '& button': {
+      marginTop: '15px',
+    },
+    '& h5': {
+      marginBottom: 0,
+    },
+  },
 });

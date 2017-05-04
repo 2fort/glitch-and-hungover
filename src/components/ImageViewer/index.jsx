@@ -10,6 +10,7 @@ import data from '../../json/data.json';
 import * as ownActions from './duck';
 import * as css from './style';
 import { keys, loading, mouse, touch } from './modules';
+import * as utils from '../../lib/utils';
 
 const ProxyRoute = (props) => {
   const { issue, page } = props.match.params;
@@ -60,6 +61,7 @@ class ImageViewer extends Component {
       current: this.current,
       setInitialValues: this.props.actions.setInitialValues,
       apply: this.apply,
+      scaleByWidth: this.props.scaleByWidth,
     }));
   }
 
@@ -85,7 +87,7 @@ class ImageViewer extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.currentImg !== prevProps.currentImg) {
       const { actions: { setInitialValues } } = this.props;
-      loading.load(this.dom.image, this.apply, setInitialValues, this.activate);
+      loading.load(this.dom.image, this.apply, setInitialValues, this.activate, this.props.scaleByWidth);
     }
   }
 
@@ -164,20 +166,41 @@ class ImageViewer extends Component {
     }
   }
 
+  scaleModalClose = (e) => {
+    if (this.props.scaleModalVisible) {
+      const path = utils.getEventPath(e);
+      let found = false;
+      for (let i = 0; i < path.length; i++) {
+        const node = path[i].id;
+
+        if (node === 'scalemodal') {
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        this.props.actions.closeScaleModal();
+      }
+    }
+  }
+
   render() {
-    const { galleryTitle, galleryId, images, currentImg, modal, initial } = this.props;
+    const { galleryTitle, galleryId, images, currentImg, modal, initial, actions,
+      scaleByWidth, scaleModalVisible } = this.props;
 
     if (!currentImg) return null;
 
     const fullImgExt = images[currentImg - 1].large.split('.').pop();
 
     return (
-      <div
+      <div // eslint-disable-line
         className={css.overlay}
         onMouseMove={mouse.handleMouseMove(initial, this.current, this.apply)}
         onMouseUp={mouse.handleMouseUp(this.dom.image)}
         onMouseLeave={mouse.handleMouseUp(this.dom.image)}
-        onTouchMove={(e) => { e.preventDefault(); }}
+        onMouseDown={this.scaleModalClose}
+        onTouchEnd={this.scaleModalClose}
       >
         <div className={css.topbar}>
           <button className={classes(css.closeBtn, 'btn btn-link')} type="button" title="Назад" onClick={this.close}>
@@ -195,7 +218,8 @@ class ImageViewer extends Component {
           <button
             type="button"
             className={classes(css.zoomBtn, 'btn btn-link')}
-            onClick={() => { this.apply(loading.adjustByWidth(initial, this.current, this.apply)); }}
+            onClick={() => { this.apply(loading.adjustByWidth(initial, this.current)); }}
+            title="Выровнять по ширине"
           >
             <span className="fa-stack fa-lg">
               <i className="fa fa-square-o fa-stack-2x" />
@@ -203,7 +227,11 @@ class ImageViewer extends Component {
             </span>
           </button>
 
-          <div className={css.scale} ref={(el) => { this.dom.scale = el; }} />
+          <button
+            className={classes(css.scale)}
+            ref={(el) => { this.dom.scale = el; }}
+            onClick={actions.openScaleModal}
+          />
 
           <a
             href={`/img/comics/${images[currentImg - 1].large}`}
@@ -274,6 +302,41 @@ class ImageViewer extends Component {
             onTouchEnd={touch.handleTouchEnd(initial, this.current, this.apply)}
           />
         </div>
+
+        {scaleModalVisible &&
+          <div id="scalemodal" className={css.byWidthModal}>
+            <h5>Масштабирование по-умолчанию</h5>
+            <button
+              type="button"
+              className={scaleByWidth ? 'btn btn-primary' : 'btn btn-success'}
+              onClick={() => {
+                actions.setDefaultScaleByWidth(false);
+                this.apply({
+                  left: initial.box.left,
+                  top: initial.box.top,
+                  width: initial.width,
+                  height: initial.height,
+                  scale: initial.scale,
+                });
+                actions.closeScaleModal();
+              }}
+            >
+              Вписать в окно
+            </button>
+            <button
+              type="button"
+              className={scaleByWidth ? 'btn btn-success' : 'btn btn-primary'}
+              onClick={() => {
+                actions.setDefaultScaleByWidth(true);
+                this.apply(loading.adjustByWidth(initial, this.current));
+                actions.closeScaleModal();
+              }}
+            >
+              По ширине
+            </button>
+          </div>
+        }
+
       </div>
     );
   }
@@ -313,6 +376,8 @@ ImageViewer.propTypes = {
   // props from duck
   galleryId: PropTypes.string.isRequired,
   galleryTitle: PropTypes.string.isRequired,
+  scaleByWidth: PropTypes.bool.isRequired,
+  scaleModalVisible: PropTypes.bool.isRequired,
   images: PropTypes.arrayOf(PropTypes.shape({
     small: PropTypes.string.isRequired,
     medium: PropTypes.string.isRequired,
@@ -334,6 +399,9 @@ ImageViewer.propTypes = {
     reset: PropTypes.func.isRequired,
     setInitialValues: PropTypes.func.isRequired,
     setCurrentImage: PropTypes.func.isRequired,
+    setDefaultScaleByWidth: PropTypes.func.isRequired,
+    openScaleModal: PropTypes.func.isRequired,
+    closeScaleModal: PropTypes.func.isRequired,
   }).isRequired,
 };
 
