@@ -23,6 +23,9 @@ let pinch;
 let distance;
 let distanceMove;
 
+let swipe;
+let targetLeft;
+
 const kineticX = Object.assign({}, kinetic);
 const kineticY = Object.assign({}, kinetic);
 
@@ -98,7 +101,7 @@ function doubleTap(initial, current, apply) {
   apply(params);
 }
 
-export function handleTouchStart(initial, current, apply) {
+export function handleTouchStart(initial, current) {
   return (e) => {
     e.preventDefault();
 
@@ -119,8 +122,12 @@ export function handleTouchStart(initial, current, apply) {
       clearInterval(ticker);
 
       ticker = setInterval(track, 50);
+    } else if (e.touches.length === 1 && current.scale === initial.scale) {
+      swipe = true;
+      targetLeft = initial.box.left;
     } else if (e.touches.length === 2) {
       pan = false;
+      swipe = false;
       pinch = true;
     }
 
@@ -172,7 +179,7 @@ function handlePinch(touches, initial, current, apply) {
   apply(core.zoom(e, initial, current, { zoom: current.scale + (distanceMove / 200) }));
 }
 
-export function handleTouchMove(initial, current, apply) {
+export function handleTouchMove(initial, current, apply, navActions, imgPosition, totalImg) {
   return (e) => {
     e.preventDefault();
 
@@ -189,10 +196,73 @@ export function handleTouchMove(initial, current, apply) {
       return;
     }
 
+    if (swipe) {
+      let left;
+
+      if (e.touches[0].clientX - cursor.left < 0) {
+        if (imgPosition === totalImg) {
+          return;
+        }
+
+        left = current.left + (e.touches[0].clientX - cursor.left);
+        apply({ left });
+
+        if (Math.abs(left - targetLeft) >= 75) {
+          swipe = false;
+          navActions.nextImg();
+          return;
+        }
+
+        cursor.left = e.touches[0].clientX;
+      } else if (e.touches[0].clientX - cursor.left > 0) {
+        if (imgPosition === 1) {
+          return;
+        }
+
+        left = current.left - (cursor.left - e.touches[0].clientX);
+        apply({ left });
+
+        if (Math.abs(left - targetLeft) >= 75) {
+          swipe = false;
+          navActions.prevImg();
+          return;
+        }
+      }
+
+      cursor.left = e.touches[0].clientX;
+      return;
+    }
+
     if (pinch) {
       handlePinch(e.touches, initial, current, apply);
     }
   };
+}
+
+function smoothReturn(initial, current, apply) {
+  if (current.scale !== initial.scale) return;
+
+  const nextLeft = (() => {
+    let left = 0;
+    if (current.left < targetLeft) {
+      left = current.left + 8;
+      if (left > targetLeft) {
+        return targetLeft;
+      }
+    } else {
+      left = current.left - 8;
+      if (left < targetLeft) {
+        return targetLeft;
+      }
+    }
+    return left;
+  })();
+
+  apply({ left: nextLeft });
+
+  if (nextLeft !== targetLeft) {
+    requestAnimationFrame(() => { smoothReturn(initial, current, apply); });
+  }
 }
 
 export function handleTouchEnd(initial, current, apply) {
@@ -213,6 +283,11 @@ export function handleTouchEnd(initial, current, apply) {
         timestamp = Date.now();
         requestAnimationFrame(() => { autoScroll(current, apply); });
       }
+    }
+
+    if (swipe) {
+      swipe = false;
+      requestAnimationFrame(() => { smoothReturn(initial, current, apply); });
     }
 
     if (pinch) {

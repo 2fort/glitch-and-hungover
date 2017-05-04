@@ -1,4 +1,4 @@
-import { style } from 'typestyle';
+import { style, media } from 'typestyle';
 import { white } from 'csx';
 import * as csstips from 'csstips';
 
@@ -93,7 +93,7 @@ export const downloadBtn = style(buttons, {
 export const navButton = style(buttons, {
   padding: '15px',
   zIndex: 100503,
-});
+}, media({ maxWidth: 500 }, { visibility: 'hidden' }));
 
 export const navigation = style(csstips.horizontal, csstips.betweenJustified, {
   height: '100%',
