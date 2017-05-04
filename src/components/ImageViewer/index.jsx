@@ -111,14 +111,17 @@ class ImageViewer extends Component {
   activate = () => {
     this.dom.image.style.visibility = 'visible';
 
-    if (!this.loaded) {
+    if (!this.loaded && this.dom.preview) {
       this.dom.preview.style.visibility = 'visible';
     }
   }
 
   hidePreview = () => {
     this.loaded = true;
-    this.dom.preview.style.visibility = 'hidden';
+
+    if (this.dom.preview) {
+      this.dom.preview.style.visibility = 'hidden';
+    }
   }
 
   apply = (params) => {
@@ -133,7 +136,7 @@ class ImageViewer extends Component {
     this.dom.image.style.transform = `translate3d(${this.current.left}px, ${this.current.top}px, 0) ` +
       `scale3d(${this.current.scale}, ${this.current.scale}, 1)`;
 
-    if (!this.loaded) {
+    if (!this.loaded && this.dom.preview) {
       const scale = this.current.width / this.dom.preview.naturalWidth;
       this.dom.preview.style.transform = `translate3d(${this.current.left}px, ${this.current.top}px, 0) ` +
         `scale3d(${scale}, ${scale}, 1)`;
@@ -278,20 +281,21 @@ class ImageViewer extends Component {
         </div>
 
         <div className={css.frame}>
-          <img
-            className={css.previewimg}
-            alt={currentImg}
-            key={`${currentImg} preview`}
-            src={`/img/comics/${images[currentImg - 1].small}`}
-            ref={(el) => { this.dom.preview = el; }}
-          />
+          {modal &&
+            <img
+              className={css.previewimg}
+              alt={currentImg}
+              key={`${currentImg} preview`}
+              src={`/img/comics/${images[currentImg - 1].small}`}
+              ref={(el) => { this.dom.preview = el; }}
+            />
+          }
 
           <img
             className={css.fullimg}
             alt={currentImg}
             key={`${currentImg} full`}
             src={`/img/comics/${images[currentImg - 1].large}`}
-            // src={`/img/example.jpg`}
             ref={(el) => { this.dom.image = el; }}
             onLoad={this.hidePreview}
             onWheel={mouse.handleWheel(initial, this.current, this.apply)}
