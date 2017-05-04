@@ -1,21 +1,21 @@
-export function adjust(img, viewportWidth, viewportHeight, offsetY) {
+export function adjust(naturalWidth, naturalHeight, viewportWidth, viewportHeight, offsetY) {
   const newImg = {
-    width: img.width,
-    height: img.height,
+    width: naturalWidth,
+    height: naturalHeight,
     left: 0,
     top: 0,
     scale: 1,
   };
 
-  if (img.width > viewportWidth || img.height > viewportHeight) {
-    newImg.scale = viewportWidth / img.width;
+  if (naturalWidth > viewportWidth || naturalHeight > viewportHeight) {
+    newImg.scale = viewportWidth / naturalWidth;
 
-    if (img.height * newImg.scale > viewportHeight) {
-      newImg.scale = viewportHeight / img.height;
+    if (naturalHeight * newImg.scale > viewportHeight) {
+      newImg.scale = viewportHeight / naturalHeight;
     }
 
-    newImg.width = img.width * newImg.scale;
-    newImg.height = img.height * newImg.scale;
+    newImg.width = naturalWidth * newImg.scale;
+    newImg.height = naturalHeight * newImg.scale;
   }
 
   newImg.left = (viewportWidth - newImg.width) / 2;
@@ -24,7 +24,7 @@ export function adjust(img, viewportWidth, viewportHeight, offsetY) {
   return newImg;
 }
 
-export function zoom(e, img, newOptions) {
+export function zoom({ deltaY, clientX, clientY }, initial, current, newOptions) {
   const options = {
     zoomFactor: 4,
     min: false,
@@ -43,26 +43,26 @@ export function zoom(e, img, newOptions) {
 
   if (options.zoom && options.zoom > 1) {
     options.zoom = 1;
-  } else if (options.zoom && options.zoom < img.initial.scale) {
-    options.zoom = img.initial.scale;
+  } else if (options.zoom && options.zoom < initial.scale) {
+    options.zoom = initial.scale;
   }
 
   newImg.width = (() => {
     let width = 0;
 
-    if (options.max) return img.initial.naturalWidth;
-    if (options.min) return img.initial.width;
-    if (options.zoom) return img.initial.naturalWidth * options.zoom;
+    if (options.max) return initial.naturalWidth;
+    if (options.min) return initial.width;
+    if (options.zoom) return initial.naturalWidth * options.zoom;
 
-    if (e.deltaY < 0) {
-      width = img.current.width + ((img.initial.naturalWidth / 100) * options.zoomFactor);
-      if (width > img.initial.naturalWidth) {
-        return img.initial.naturalWidth;
+    if (deltaY < 0) {
+      width = current.width + ((initial.naturalWidth / 100) * options.zoomFactor);
+      if (width > initial.naturalWidth) {
+        return initial.naturalWidth;
       }
     } else {
-      width = img.current.width - ((img.initial.naturalWidth / 100) * options.zoomFactor);
-      if (width < img.initial.width) {
-        return img.initial.width;
+      width = current.width - ((initial.naturalWidth / 100) * options.zoomFactor);
+      if (width < initial.width) {
+        return initial.width;
       }
     }
 
@@ -72,19 +72,19 @@ export function zoom(e, img, newOptions) {
   newImg.height = (() => {
     let height = 0;
 
-    if (options.max) return img.initial.naturalHeight;
-    if (options.min) return img.initial.height;
-    if (options.zoom) return img.initial.naturalHeight * options.zoom;
+    if (options.max) return initial.naturalHeight;
+    if (options.min) return initial.height;
+    if (options.zoom) return initial.naturalHeight * options.zoom;
 
-    if (e.deltaY < 0) {
-      height = img.current.height + ((img.initial.naturalHeight / 100) * options.zoomFactor);
-      if (height > img.initial.naturalHeight) {
-        return img.initial.naturalHeight;
+    if (deltaY < 0) {
+      height = current.height + ((initial.naturalHeight / 100) * options.zoomFactor);
+      if (height > initial.naturalHeight) {
+        return initial.naturalHeight;
       }
     } else {
-      height = img.current.height - ((img.initial.naturalHeight / 100) * options.zoomFactor);
-      if (height < img.initial.height) {
-        return img.initial.height;
+      height = current.height - ((initial.naturalHeight / 100) * options.zoomFactor);
+      if (height < initial.height) {
+        return initial.height;
       }
     }
 
@@ -95,72 +95,72 @@ export function zoom(e, img, newOptions) {
     let scale = 0;
 
     if (options.max) return 1;
-    if (options.min) return img.initial.scale;
+    if (options.min) return initial.scale;
     if (options.zoom) return options.zoom;
 
-    if (e.deltaY < 0) {
-      scale = Number(img.current.scale) + (options.zoomFactor / 100);
+    if (deltaY < 0) {
+      scale = Number(current.scale) + (options.zoomFactor / 100);
     } else {
-      scale = Number(img.current.scale) - (options.zoomFactor / 100);
+      scale = Number(current.scale) - (options.zoomFactor / 100);
     }
 
     if (scale > 1) {
       return 1;
     }
 
-    if (scale < img.initial.scale) {
-      return img.initial.scale;
+    if (scale < initial.scale) {
+      return initial.scale;
     }
 
     return scale;
   })();
 
-  const newWidthPercent = (newImg.width / img.current.width) * 100;
-  const newHeightPercent = (newImg.height / img.current.height) * 100;
+  const newWidthPercent = (newImg.width / current.width) * 100;
+  const newHeightPercent = (newImg.height / current.height) * 100;
 
-  const leftSide = e.clientX - img.current.left;
-  const topSide = e.clientY - img.current.top;
+  const leftSide = clientX - current.left;
+  const topSide = clientY - current.top;
 
   const newLeftSide = leftSide - (leftSide * (newWidthPercent / 100));
   const newTopSide = topSide - (topSide * (newHeightPercent / 100));
 
   newImg.left = (() => {
-    if (options.min) return img.initial.box.left;
+    if (options.min) return initial.box.left;
 
-    const left = img.current.left + newLeftSide;
+    const left = current.left + newLeftSide;
 
     // sticky left
-    if (Math.round(img.current.left) <= Math.round(img.initial.box.left)
-      && Math.round(left) >= Math.round(img.initial.box.left)) {
-      return img.initial.box.left;
+    if (Math.round(current.left) <= Math.round(initial.box.left)
+      && Math.round(left) >= Math.round(initial.box.left)) {
+      return initial.box.left;
     }
 
     // sticky right
     const newboxRight = newImg.width + left;
-    if (Math.round(img.current.width + img.current.left) >= Math.round(img.initial.box.right)
-      && Math.round(newImg.width + left) <= Math.round(img.initial.box.right)) {
-      return left + (img.initial.box.right - newboxRight);
+    if (Math.round(current.width + current.left) >= Math.round(initial.box.right)
+      && Math.round(newImg.width + left) <= Math.round(initial.box.right)) {
+      return left + (initial.box.right - newboxRight);
     }
 
     return left;
   })();
 
   newImg.top = (() => {
-    if (options.min) return img.initial.box.top;
+    if (options.min) return initial.box.top;
 
-    const top = img.current.top + newTopSide;
+    const top = current.top + newTopSide;
 
     // sticky top
-    if (Math.round(img.current.top) <= Math.round(img.initial.box.top)
-      && Math.round(top) >= Math.round(img.initial.box.top)) {
-      return img.initial.box.top;
+    if (Math.round(current.top) <= Math.round(initial.box.top)
+      && Math.round(top) >= Math.round(initial.box.top)) {
+      return initial.box.top;
     }
 
     // sticky bottom
     const newboxBot = newImg.height + top;
-    if (Math.round(img.current.height + img.current.top) >= Math.round(img.initial.box.bottom)
-      && Math.round(newImg.height + top) <= Math.round(img.initial.box.bottom)) {
-      return top + (img.initial.box.bottom - newboxBot);
+    if (Math.round(current.height + current.top) >= Math.round(initial.box.bottom)
+      && Math.round(newImg.height + top) <= Math.round(initial.box.bottom)) {
+      return top + (initial.box.bottom - newboxBot);
     }
 
     return top;

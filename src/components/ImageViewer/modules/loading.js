@@ -27,7 +27,7 @@ export function adjustByWidth(initial, current) {
       zoom = 1;
     }
 
-    const params = core.zoom({ clientX: 0, clientY: 0 }, { initial, current }, { zoom });
+    const params = core.zoom({ deltaY: -1, clientX: 0, clientY: 0 }, initial, current, { zoom });
 
     const viewportCenter = window.innerWidth / 2;
     const imageCenterLeft = params.left + (params.width / 2);
@@ -40,13 +40,7 @@ export function adjustByWidth(initial, current) {
 }
 
 function init(img, apply, setInitialValues, scaleByWidth) {
-  let params = core.adjust(
-    { width: img.naturalWidth, height: img.naturalHeight },
-    window.innerWidth,
-    window.innerHeight - 40,
-    40,
-  );
-
+  let params = core.adjust(img.naturalWidth, img.naturalHeight, window.innerWidth, window.innerHeight - 40, 40);
   const initial = getInitialValues({ ...params, naturalWidth: img.naturalWidth, naturalHeight: img.naturalHeight });
 
   if (scaleByWidth) {
@@ -54,17 +48,11 @@ function init(img, apply, setInitialValues, scaleByWidth) {
   }
 
   apply(params);
-
   setInitialValues(initial);
 }
 
 function reload(initial, setInitialValues) {
-  const params = core.adjust(
-    { width: initial.naturalWidth, height: initial.naturalHeight },
-    window.innerWidth,
-    window.innerHeight - 40,
-    40,
-  );
+  const params = core.adjust(initial.naturalWidth, initial.naturalHeight, window.innerWidth, window.innerHeight - 40, 40);
 
   const newInitial = getInitialValues({
     ...params,

@@ -35,30 +35,19 @@ export const pageNumber = style({
   whiteSpace: 'nowrap',
 });
 
-export const scale = style({
-  margin: 'auto 7px auto 0',
-  fontSize: '.95rem',
-  // minWidth: '50px',
-  textAlign: 'right',
-  borderTop: 0,
-  borderBottom: '1px dashed #FFFFFF',
-  borderLeft: 0,
-  borderRight: 0,
-  backgroundColor: 'transparent',
-  color: white.toHexString(),
-});
-
 const buttons = {
   color: white.toHexString(),
   opacity: 0.8,
   boxShadow: 'none',
   outline: 0,
   border: 0,
+  backgroundColor: 'transparent',
   $nest: {
     '&:hover': {
       textDecoration: 'none',
       color: white.toHexString(),
       opacity: 1,
+      cursor: 'pointer',
     },
     '&:focus': {
       opacity: 1,
@@ -77,6 +66,14 @@ const buttons = {
     },
   },
 };
+
+export const scale = style(buttons, {
+  margin: 'auto 7px auto 0',
+  fontSize: '.95rem',
+  // minWidth: '50px',
+  textAlign: 'right',
+  borderBottom: '1px dashed #FFFFFF',
+});
 
 export const closeBtn = style(buttons, {
   padding: '8px 10px 7px 12px',

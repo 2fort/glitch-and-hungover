@@ -9,7 +9,7 @@ export function handleWheel(initial, current, apply) {
       return;
     }
 
-    apply(core.zoom(e, { initial, current }));
+    apply(core.zoom(e, initial, current));
   };
 }
 
@@ -17,10 +17,10 @@ export function handleDoubleClick(initial, current, apply) {
   return (e) => {
     const params = (() => {
       if (current.scale === 1) {
-        return core.zoom(e, { initial, current }, { min: true });
+        return core.zoom(e, initial, current, { min: true });
       }
 
-      return core.zoom(e, { initial, current }, { max: true });
+      return core.zoom(e, initial, current, { max: true });
     })();
 
     apply(params);

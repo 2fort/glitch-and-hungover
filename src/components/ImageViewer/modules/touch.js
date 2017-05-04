@@ -89,10 +89,10 @@ function doubleTap(initial, current, apply) {
   const coordinates = { clientX: cursor.left, clientY: cursor.top };
   const params = (() => {
     if (current.scale === 1) {
-      return core.zoom(coordinates, { initial, current }, { min: true });
+      return core.zoom(coordinates, initial, current, { min: true });
     }
 
-    return core.zoom(coordinates, { initial, current }, { max: true });
+    return core.zoom(coordinates, initial, current, { max: true });
   })();
 
   apply(params);
@@ -169,7 +169,7 @@ function handlePinch(touches, initial, current, apply) {
 
   const e = { clientX, clientY, deltaY };
 
-  apply(core.zoom(e, { initial, current }, { zoom: current.scale + (distanceMove / 200) }));
+  apply(core.zoom(e, initial, current, { zoom: current.scale + (distanceMove / 200) }));
 }
 
 export function handleTouchMove(initial, current, apply) {
