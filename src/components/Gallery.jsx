@@ -17,9 +17,15 @@ const Gallery = ({ images, title, id }) => {
       </Link>
     </div>
   ));
+
+  const layoutFix = new Array(10).fill(0).map((elem, i) => (
+    <div key={`additional ${i + 1}`} className={css.imageContainer} />
+  ));
+
   return (
     <div className={css.images}>
       {elemImages}
+      {layoutFix}
     </div>
   );
 };

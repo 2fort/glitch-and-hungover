@@ -31,3 +31,11 @@ export const date = style({ textAlign: 'right' });
 export const main = style({ marginTop: '2rem' });
 
 export const footer = style({ padding: '1.5rem 0 2rem' });
+
+export const buttons = style({
+  $nest: {
+    '&:hover': {
+      cursor: 'pointer',
+    },
+  },
+});

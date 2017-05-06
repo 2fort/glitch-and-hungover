@@ -2,6 +2,7 @@
   "01_january_2000": {
     "title": "Проблема 2000",
     "date": "Январь 2000",
+    "year": 2000,
     "anchor": "problem_2000",
     "files": [
       {
@@ -29,6 +30,7 @@
   "02_february_2000": {
     "title": "Конец Света",
     "date": "Февраль 2000",
+    "year": 2000,
     "anchor": "doomsday",
     "files": [
       {
@@ -56,6 +58,7 @@
   "03_march_2000": {
     "title": "ENTER",
     "date": "Март 2000",
+    "year": 2000,
     "anchor": "enter",
     "files": [
       {
@@ -83,6 +86,7 @@
   "04_april_2000": {
     "title": "DELETE",
     "date": "Апрель 2000",
+    "year": 2000,
     "anchor": "delete",
     "files": [
       {
@@ -110,6 +114,7 @@
   "05_may_2000": {
     "title": "Потоп",
     "date": "Май 2000",
+    "year": 2000,
     "anchor": "flood",
     "files": [
       {
@@ -137,6 +142,7 @@
   "06_july_2000": {
     "title": "Дачный сезон",
     "date": "Июль 2000",
+    "year": 2000,
     "anchor": "summer_season",
     "files": [
       {
@@ -164,6 +170,7 @@
   "07_august_2000": {
     "title": "Капитаны тоже плачут",
     "date": "Август 2000",
+    "year": 2000,
     "anchor": "captains_also_crying",
     "files": [
       {
@@ -191,6 +198,7 @@
   "08_september_2000": {
     "title": "Огонь & Вода",
     "date": "Сентябрь 2000",
+    "year": 2000,
     "anchor": "fire_and_water",
     "files": [
       {
@@ -218,6 +226,7 @@
   "09_october_2000": {
     "title": "ДТП",
     "date": "Октябрь 2000",
+    "year": 2000,
     "anchor": "accident",
     "files": [
       {
@@ -245,6 +254,7 @@
   "10_november_2000": {
     "title": "Спасение утопающих",
     "date": "Ноябрь 2000",
+    "year": 2000,
     "anchor": "rescue_the_drowning",
     "files": [
       {
@@ -272,6 +282,7 @@
   "11_december_2000": {
     "title": "Зарплата",
     "date": "Декабрь 2000",
+    "year": 2000,
     "anchor": "salary",
     "files": [
       {
@@ -299,6 +310,7 @@
   "12_january_2001": {
     "title": "Желаю...",
     "date": "Январь 2001",
+    "year": 2000,
     "anchor": "i_wish",
     "files": [
       {
@@ -320,6 +332,174 @@
         "small": "ByfxOcJ4dpg_small.jpg",
         "medium": "ByfxOcJ4dpg_medium.jpg",
         "large": "ByfxOcJ4dpg_large.jpg"
+      }
+    ]
+  },
+  "13_march_1999": {
+    "title": "Полное погружение",
+    "date": "Март 1999",
+    "year": 1999,
+    "anchor": "full_dive",
+    "files": [
+      {
+        "small": "SJhGilsyb_small.jpg",
+        "medium": "SJhGilsyb_medium.jpg",
+        "large": "SJhGilsyb_large.jpg"
+      },
+      {
+        "small": "H1l2Gsxik-_small.jpg",
+        "medium": "H1l2Gsxik-_medium.jpg",
+        "large": "H1l2Gsxik-_large.jpg"
+      },
+      {
+        "small": "SJbhMjxjJ-_small.jpg",
+        "medium": "SJbhMjxjJ-_medium.jpg",
+        "large": "SJbhMjxjJ-_large.jpg"
+      },
+      {
+        "small": "rkM2MsgskZ_small.jpg",
+        "medium": "rkM2MsgskZ_medium.jpg",
+        "large": "rkM2MsgskZ_large.jpg"
+      }
+    ]
+  },
+  "14_april_1999": {
+    "title": "Погружение в Internet",
+    "date": "Апрель 1999",
+    "year": 1999,
+    "anchor": "dive_into_internet",
+    "files": [
+      {
+        "small": "rk7hzsloJZ_small.jpg",
+        "medium": "rk7hzsloJZ_medium.jpg",
+        "large": "rk7hzsloJZ_large.jpg"
+      },
+      {
+        "small": "HkVhGjgsk-_small.jpg",
+        "medium": "HkVhGjgsk-_medium.jpg",
+        "large": "HkVhGjgsk-_large.jpg"
+      },
+      {
+        "small": "SyBnzsls1W_small.jpg",
+        "medium": "SyBnzsls1W_medium.jpg",
+        "large": "SyBnzsls1W_large.jpg"
+      },
+      {
+        "small": "HkU2Gjesy-_small.jpg",
+        "medium": "HkU2Gjesy-_medium.jpg",
+        "large": "HkU2Gjesy-_large.jpg"
+      }
+    ]
+  },
+  "15_may_1999": {
+    "title": "Титаническое погружение",
+    "date": "Май 1999",
+    "year": 1999,
+    "anchor": "titanic_dive",
+    "files": [
+      {
+        "small": "BkD3Gixs1W_small.jpg",
+        "medium": "BkD3Gixs1W_medium.jpg",
+        "large": "BkD3Gixs1W_large.jpg"
+      },
+      {
+        "small": "ByO2Gogoy-_small.jpg",
+        "medium": "ByO2Gogoy-_medium.jpg",
+        "large": "ByO2Gogoy-_large.jpg"
+      },
+      {
+        "small": "ByF2zoxjkb_small.jpg",
+        "medium": "ByF2zoxjkb_medium.jpg",
+        "large": "ByF2zoxjkb_large.jpg"
+      },
+      {
+        "small": "ryc3Gjesyb_small.jpg",
+        "medium": "ryc3Gjesyb_medium.jpg",
+        "large": "ryc3Gjesyb_large.jpg"
+      }
+    ]
+  },
+  "16_june_1999": {
+    "title": "Погружение в суицид",
+    "date": "Июнь 1999",
+    "year": 1999,
+    "anchor": "dive_into_suicide",
+    "files": [
+      {
+        "small": "HJo2ziei1W_small.jpg",
+        "medium": "HJo2ziei1W_medium.jpg",
+        "large": "HJo2ziei1W_large.jpg"
+      },
+      {
+        "small": "Hk2hzixiJW_small.jpg",
+        "medium": "Hk2hzixiJW_medium.jpg",
+        "large": "Hk2hzixiJW_large.jpg"
+      },
+      {
+        "small": "SJahfjeiy-_small.jpg",
+        "medium": "SJahfjeiy-_medium.jpg",
+        "large": "SJahfjeiy-_large.jpg"
+      },
+      {
+        "small": "SyAhGjlskW_small.jpg",
+        "medium": "SyAhGjlskW_medium.jpg",
+        "large": "SyAhGjlskW_large.jpg"
+      }
+    ]
+  },
+  "17_august_1999": {
+    "title": "Приказ",
+    "date": "Август 1999",
+    "year": 1999,
+    "anchor": "order",
+    "files": [
+      {
+        "small": "S11ehzjgj1W_small.jpg",
+        "medium": "S11ehzjgj1W_medium.jpg",
+        "large": "S11ehzjgj1W_large.jpg"
+      },
+      {
+        "small": "ryeenzoeoyb_small.jpg",
+        "medium": "ryeenzoeoyb_medium.jpg",
+        "large": "ryeenzoeoyb_large.jpg"
+      },
+      {
+        "small": "SJbl3GsxiJ-_small.jpg",
+        "medium": "SJbl3GsxiJ-_medium.jpg",
+        "large": "SJbl3GsxiJ-_large.jpg"
+      },
+      {
+        "small": "rkze2GjloJW_small.jpg",
+        "medium": "rkze2GjloJW_medium.jpg",
+        "large": "rkze2GjloJW_large.jpg"
+      }
+    ]
+  },
+  "18_september_1999": {
+    "title": "СюрПриз",
+    "date": "Сентябрь 1999",
+    "year": 1999,
+    "anchor": "surprise",
+    "files": [
+      {
+        "small": "B1QenzoesJ-_small.jpg",
+        "medium": "B1QenzoesJ-_medium.jpg",
+        "large": "B1QenzoesJ-_large.jpg"
+      },
+      {
+        "small": "SkNgnMjxoJ-_small.jpg",
+        "medium": "SkNgnMjxoJ-_medium.jpg",
+        "large": "SkNgnMjxoJ-_large.jpg"
+      },
+      {
+        "small": "rJrg3Gigj1Z_small.jpg",
+        "medium": "rJrg3Gigj1Z_medium.jpg",
+        "large": "rJrg3Gigj1Z_large.jpg"
+      },
+      {
+        "small": "B1Ux2fsljkZ_small.jpg",
+        "medium": "B1Ux2fsljkZ_medium.jpg",
+        "large": "B1Ux2fsljkZ_large.jpg"
       }
     ]
   }
