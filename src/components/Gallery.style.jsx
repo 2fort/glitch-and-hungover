@@ -27,19 +27,20 @@ export const imageContainer = (() => {
     height: '150px',
     '&:empty': {
       height: 0,
-      width: '150px',
+      width: '125px',
       margin: '0 0.5rem 0 0.5rem',
     },
   };
 
   return style({
+    border: '1px red solid',
     width: '250px',
     height: '300px',
     margin: '0 0.5rem 0.75rem 0.5rem',
     textAlign: 'center',
     '&:empty': {
-      width: '250px',
       height: 0,
+      width: '250px',
       margin: '0 0.5rem 0 0.5rem',
     },
     $nest: retinaMixin(mixin),
