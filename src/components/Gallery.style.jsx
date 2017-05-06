@@ -33,7 +33,6 @@ export const imageContainer = (() => {
   };
 
   return style({
-    border: '1px red solid',
     width: '250px',
     height: '300px',
     margin: '0 0.5rem 0.75rem 0.5rem',
