@@ -7,10 +7,10 @@ const folderList = fs.readdirSync('images');
 
 function resizeWithSharp(fullPath, filename, width, height, saveFolder) {
   let sharpResize = sharp(fullPath)
-      .resize(width, height)
-      .max()
-      .withoutEnlargement()
-      .jpeg({ quality: 90 });
+    .resize(width, height)
+    .max()
+    .withoutEnlargement()
+    .jpeg({ quality: 90 });
 
   sharpResize = sharpResize.toFile(saveFolder + filename);
 
