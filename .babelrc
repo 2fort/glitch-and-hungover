@@ -1,15 +1,51 @@
 {
-  "plugins": ["react-hot-loader/babel"],
-  "presets": [
+  "plugins": [
+    "@babel/plugin-proposal-object-rest-spread",
+    ["@babel/plugin-proposal-class-properties", { "loose": true }],
     [
-      "env", { 
-        "targets": {
-          "browsers": ["last 2 Chrome versions"]
-        }, 
-        "modules": false
+      "transform-imports",
+      {
+        "date-fns": {
+          "transform": "date-fns/${member}",
+          "preventFullImport": true
+        }
       }
-    ],
-    "stage-2", 
-    "react"
-  ]
+    ]
+  ],
+  "presets": [
+    "@babel/preset-react"
+  ],
+  "env": {
+    "development": {
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": {
+              "browsers": [
+                "last 2 Chrome versions"
+              ]
+            },
+            "modules": false
+          }
+        ]
+      ]
+    },
+    "production": {
+      "plugins": ["transform-react-remove-prop-types"],
+      "presets": [
+        [
+          "@babel/preset-env",
+          {
+            "targets": "> 1%, not dead, not IE > 0",
+            "loose": true,
+            "modules": false,
+            "useBuiltIns": "usage",
+            "corejs": 3,
+            "debug": true
+          }
+        ]
+      ]
+    }
+  }
 }

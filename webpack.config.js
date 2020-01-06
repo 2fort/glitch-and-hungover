@@ -3,24 +3,22 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 const commitHash = require('child_process').execSync('git rev-parse --short HEAD').toString();
 
-const BASE_URL = 'http://localhost:3001';
+const port = 3070;
+const BASE_URL = `http://localhost:${port}`;
 
 module.exports = {
   entry: {
-    dev: [
-      'react-hot-loader/patch',
-      'webpack-dev-server/client?http://0.0.0.0:3001',
-      'webpack/hot/only-dev-server',
-    ],
     app: [
-      './src/app.jsx',
+      './src/App.jsx',
+      `webpack-dev-server/client?http://localhost:${port}`,
+      'webpack/hot/only-dev-server',
     ],
   },
 
   output: {
     path: '/build',
     publicPath: '/',
-    filename: '[hash].[name].js',
+    filename: 'js/[hash].[name].js',
   },
 
   resolve: {
@@ -29,6 +27,10 @@ module.exports = {
 
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader'],
+      },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -42,7 +44,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(svg|png|jpg|jpeg|gif)$/,
+        test: /\.(png|jpg|jpeg|gif)$/,
         exclude: /node_modules/,
         use: [
           {
@@ -84,7 +86,7 @@ module.exports = {
     publicPath: '/',
     historyApiFallback: true,
     stats: 'minimal',
-    port: 3001,
+    port,
     proxy: {
       '/img/**': {
         target: 'http://localhost:3000',

@@ -132,10 +132,10 @@ export function handleTouchStart(initial, current) {
     }
 
     if (
-        e.touches.length === 1 &&
-        Math.abs(cursor.left - e.touches[0].clientX < 25) &&
-        Math.abs(cursor.top - e.touches[0].clientY < 25)
-      ) {
+      e.touches.length === 1 &&
+      Math.abs(cursor.left - e.touches[0].clientX < 25) &&
+      Math.abs(cursor.top - e.touches[0].clientY < 25)
+    ) {
       same = true;
     } else {
       same = false;

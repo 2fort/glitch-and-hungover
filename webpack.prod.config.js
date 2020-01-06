@@ -1,45 +1,22 @@
 const path = require('path');
 const webpack = require('webpack');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
-const InlineManifestWebpackPlugin = require('inline-manifest-webpack-plugin');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 const commitHash = require('child_process').execSync('git rev-parse --short HEAD').toString();
 
 const BASE_URL = process.env.BASE_URL || 'http://glitch-hungover.dev';
 
-function chunksSortModeExp(chunk1, chunk2, orders) {
-  const order1 = orders.indexOf(chunk1.names[0]);
-  const order2 = orders.indexOf(chunk2.names[0]);
-  if (order1 > order2) {
-    return 1;
-  } else if (order1 < order2) {
-    return -1;
-  }
-  return 0;
-}
-
 module.exports = {
-
   entry: {
-    vendor: [
-      'react',
-      'react-dom',
-      'react-redux',
-      'redux',
-      'csstips',
-      'csx',
-      'typestyle',
-      'react-router',
-      'react-router-dom',
-    ],
-    app: ['./src/app.jsx'],
+    app: ['./src/App.jsx'],
   },
 
   output: {
     path: path.join(__dirname, 'build'),
     publicPath: '/',
-    filename: '[name].[chunkhash:8].js',
-    chunkFilename: '[name].[chunkhash:8].chunk.js',
+    filename: 'js/[name].[chunkhash:8].js',
+    chunkFilename: 'js/[name].[chunkhash:8].chunk.js',
   },
 
   resolve: {
@@ -47,8 +24,25 @@ module.exports = {
     modules: ['node_modules'],
   },
 
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
+  },
   module: {
     rules: [
+      {
+        test: /\.css$/,
+        use: [
+          {
+            loader: MiniCssExtractPlugin.loader,
+            options: {
+              hmr: false,
+            },
+          },
+          'css-loader',
+        ],
+      },
       {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
@@ -56,30 +50,47 @@ module.exports = {
           {
             loader: 'babel-loader',
             options: {
-              babelrc: false,
-              compact: true,
-              plugins: [
-                [
-                  'transform-react-remove-prop-types',
-                  {
-                    ignoreFilenames: ['node_modules'],
-                  },
-                ],
-              ],
-              presets: [
-                [
-                  'env', {
-                    targets: {
-                      browsers: ['last 2 versions'],
-                    },
-                    loose: true, // ?
-                    modules: false,
-                    debug: true,
-                  },
-                ],
-                'stage-2',
-                'react',
-              ],
+              cacheDirectory: true,
+            },
+          },
+        ],
+      },
+      {
+        test: /\.(png|jpg|jpeg|gif)$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'img/[name]-[hash:10].[ext]',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.pdf$/,
+        exclude: /node_modules/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+            },
+          },
+        ],
+      },
+      {
+        test: /\.svg$/,
+        use: ['@svgr/webpack', 'url-loader'],
+      },
+      {
+        test: /\.(svg|ttf|woff|woff2|eot|otf)$/,
+        include: /node_modules/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: 'fonts/[name].[ext]',
             },
           },
         ],
@@ -91,17 +102,13 @@ module.exports = {
 
   plugins: [
     new HtmlWebpackPlugin({
-      title: 'Комикс «Глюк и Отходняк»',
-      template: './src/index.ejs',
-      chunks: ['vendor', 'app'],
       baseurl: BASE_URL,
       commitHash,
       inject: 'body',
       filename: 'index.html',
-      chunksSortMode: (chunk1, chunk2) => {
-        const order = ['vendor', 'app'];
-        return chunksSortModeExp(chunk1, chunk2, order);
-      },
+      title: 'Комикс «Глюк и Отходняк»',
+      template: './src/index.ejs',
+      NODE_ENV: 'production',
     }),
     new webpack.DefinePlugin({
       'process.env': {
@@ -109,15 +116,10 @@ module.exports = {
         IMG_FOLDER: JSON.stringify('/img/comics/'),
       },
     }),
-    new InlineManifestWebpackPlugin({
-      name: 'webpackManifest',
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      names: ['vendor', 'manifest'],
-      minChunks: Infinity,
-    }),
-    new webpack.NamedModulesPlugin(),
-    new webpack.NoEmitOnErrorsPlugin(),
     new webpack.optimize.AggressiveMergingPlugin(),
+    new MiniCssExtractPlugin({
+      filename: 'styles/[name].[contenthash].css',
+      chunkFilename: 'styles/[id].[contenthash].css',
+    }),
   ],
 };

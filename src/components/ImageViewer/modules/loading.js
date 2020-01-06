@@ -3,7 +3,9 @@ import * as core from './core';
 const initialWindow = { width: window.innerWidth, height: window.innerHeight };
 let resizeDebounce;
 
-function getInitialValues({ width, height, naturalWidth, naturalHeight, left, top, scale }) {
+function getInitialValues({
+  width, height, naturalWidth, naturalHeight, left, top, scale,
+}) {
   return {
     scale,
     box: {
@@ -83,7 +85,9 @@ export function handleResizeWindow(getProps) {
     clearTimeout(resizeDebounce);
 
     resizeDebounce = setTimeout(() => {
-      const { initial, current, apply, setInitialValues, scaleByWidth } = getProps();
+      const {
+        initial, current, apply, setInitialValues, scaleByWidth,
+      } = getProps();
 
       const differenceX = Math.abs(window.innerWidth - initialWindow.width);
       const differenceY = Math.abs(window.innerHeight - initialWindow.height);

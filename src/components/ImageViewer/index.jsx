@@ -1,176 +1,257 @@
-import React, { Component } from 'react';
+import React, { useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { classes } from 'typestyle';
-import { Link } from 'react-router-dom';
-import { withRouter } from 'react-router';
-import Fetch404 from '../404/Fetch404';
-import data from '../../json/data.json';
+import classNames from 'classnames';
+import { createUseStyles } from 'react-jss';
 import * as ownActions from './duck';
-import * as css from './style';
-import { keys, loading, mouse, touch } from './modules';
+import {
+  loading, mouse, touch,
+} from './modules';
 import * as utils from '../../lib/utils';
 
-const ProxyRoute = (props) => {
-  const { issue, page } = props.match.params;
-  const properPage = page || 1;
-
-  const cursor = Object.keys(data).filter(comics => data[comics].anchor === issue);
-  const comics = data[cursor[0]];
-  const image = data[cursor[0]] && comics.files[properPage - 1];
-
-  if (!comics || !image) {
-    return <Fetch404>Страница не найдена!</Fetch404>;
-  }
-
-  return (
-    <ImageViewer {...props} comics={comics} page={Number(properPage)} />
-  );
+const buttons = {
+  color: '#FFF',
+  opacity: 0.8,
+  boxShadow: 'none',
+  outline: 0,
+  border: 0,
+  backgroundColor: 'transparent',
+  '&:hover': {
+    textDecoration: 'none',
+    color: '#FFF',
+    opacity: 1,
+    cursor: 'pointer',
+  },
+  '&:focus': {
+    opacity: 1,
+    border: 0,
+    boxShadow: 'none',
+    color: '#FFF',
+  },
+  '&:disabled': {
+    boxShadow: 'none',
+    outline: 0,
+    border: 0,
+    '&:hover': {
+      textDecoration: 'none',
+      color: '#636c72',
+    },
+  },
 };
 
-ProxyRoute.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      issue: PropTypes.string.isRequired,
-      page: PropTypes.string,
-    }).isRequired,
-  }).isRequired,
-};
+const useStyles = createUseStyles({
+  overlay: {
+    display: 'flex',
+    flexDirection: 'column',
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 100500,
+    visibility: 'visible',
+  },
 
-class ImageViewer extends Component {
-  constructor(props) {
-    super(props);
+  topbar: {
+    display: 'flex',
+    flexDirection: 'row',
+    color: '#FFF',
+    zIndex: 100550,
+    height: '41px',
+    backgroundColor: 'rgba(20,20,20,0.85)',
+    borderBottom: '1px solid rgba(255,255,255,0.2)',
+    textOverflow: 'ellipsis',
+  },
 
-    this.scrollY = window.scrollY;
-    this.dom = { image: null, preview: null, scale: null };
-    this.current = { left: 0, top: 0, width: 0, height: 0, scale: 0 };
-    this.loaded = false;
-    this.nav = { prevImg: this.prevImg, nextImg: this.nextImg, close: this.close };
+  title: {
+    margin: 'auto 0',
+    fontSize: '.95rem',
+    whiteSpace: 'nowrap',
+    textOverflow: 'ellipsis',
+    overflow: 'hidden',
+  },
 
+  pageNumber: {
+    margin: 'auto auto auto 0',
+    fontSize: '.95rem',
+    whiteSpace: 'nowrap',
+  },
+
+  buttons,
+
+  scale: {
+    ...buttons,
+    margin: 'auto 7px auto 0',
+    fontSize: '.95rem',
+    textAlign: 'right',
+    borderBottom: '1px dashed #FFFFFF',
+  },
+
+  closeBtn: {
+    ...buttons,
+    padding: '8px 10px 7px 12px',
+    marginRight: 'auto',
+  },
+
+  zoomBtn: {
+    ...buttons,
+    margin: 0,
+    lineHeight: 2,
+    fontSize: '0.6rem',
+  },
+
+  downloadBtn: {
+    ...buttons,
+    padding: '10px 14px 10px 12px',
+  },
+
+  navButton: {
+    ...buttons,
+    padding: '15px',
+    zIndex: 100503,
+  },
+
+  navigation: {
+    display: 'flex',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    height: '100%',
+  },
+
+  navButtonContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    height: '100%',
+  },
+
+  frame: {
+    left: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
+    position: 'absolute',
+    zIndex: 100501,
+  },
+
+  previewimg: {
+    position: 'absolute',
+    visibility: 'hidden',
+    zIndex: 100502,
+    transformOrigin: '0 0',
+  },
+
+  fullimg: {
+    position: 'absolute',
+    visibility: 'hidden',
+    zIndex: 100503,
+    transformOrigin: '0 0',
+  },
+
+  byWidthModal: {
+    position: 'fixed',
+    top: '50%',
+    left: '50%',
+    right: 'auto',
+    bottom: 'auto',
+    marginRight: '-50%',
+    transform: 'translate(-50%, -50%)',
+    zIndex: 100800,
+    backgroundColor: 'white',
+    padding: '15px',
+    maxWidth: '220px',
+    borderRadius: '5px',
+    textAlign: 'center',
+    '& button': {
+      marginTop: '15px',
+    },
+    '& h5': {
+      marginBottom: 0,
+    },
+  },
+});
+
+const ImageViewer = ({
+  comics, page, galleryId, scaleByWidth, scaleModalVisible, initial, actions, prevImg, nextImg, close,
+}) => {
+  const classes = useStyles();
+  const scrollY = useRef(window.scrollY);
+  const image = useRef();
+  const preview = useRef();
+  const scale = useRef();
+  const current = useRef({
+    left: 0, top: 0, width: 0, height: 0, scale: 0,
+  });
+  const loaded = useRef(false);
+
+  const images = comics.files;
+  const galleryTitle = comics.title;
+
+  useEffect(() => {
     document.body.classList.add('overlay-active');
     document.documentElement.classList.add('html-noscroll');
-
     document.querySelector('meta[name=viewport]')
       .setAttribute('content', 'initial-scale=1, maximum-scale=1.0, user-scalable=0');
 
-    document.onkeydown = keys(this.nav);
+    return () => {
+      document.body.classList.remove('overlay-active');
+      document.documentElement.classList.remove('html-noscroll');
+      document.querySelector('meta[name=viewport]')
+        .setAttribute('content', 'initial-scale=1.0,width=device-width');
+      window.scrollTo(0, scrollY);
+      actions.reset();
+    };
+  }, [actions]);
 
-    window.onresize = loading.handleResizeWindow(() => ({
-      initial: this.props.initial,
-      current: this.current,
-      setInitialValues: this.props.actions.setInitialValues,
-      apply: this.apply,
-      scaleByWidth: this.props.scaleByWidth,
-    }));
-  }
+  const setScale = useCallback((width) => {
+    scale.current.innerHTML = `${((width / image.current.naturalWidth) * 100).toFixed(2)}%`;
+  }, []);
 
-  componentDidMount() {
-    const { comics, page, match: { params: { page: paramsPage } } } = this.props;
+  const activate = useCallback(() => {
+    image.current.style.visibility = 'visible';
 
-    this.props.actions.setGalleryId(comics.anchor);
-    this.props.actions.setGalleryTitle(comics.title);
-    this.props.actions.addImages(comics.files, page);
-
-    if (!paramsPage) {
-      this.props.history.replace(`/${comics.anchor}/1`);
+    if (!loaded.current && preview.current) {
+      preview.current.style.visibility = 'visible';
     }
-  }
+  }, []);
 
-  componentWillUpdate(nextProps) {
-    if (this.props.match.params.page !== nextProps.match.params.page) {
-      this.loaded = false;
-      this.props.actions.setCurrentImage(Number(nextProps.match.params.page));
+  const hidePreview = useCallback(() => {
+    loaded.current = true;
+
+    if (preview.current) {
+      preview.current.style.visibility = 'hidden';
     }
-  }
+  }, []);
 
-  componentDidUpdate(prevProps) {
-    if (this.props.currentImg !== prevProps.currentImg) {
-      const { actions: { setInitialValues } } = this.props;
-      loading.load(this.dom.image, this.apply, setInitialValues, this.activate, this.props.scaleByWidth);
-    }
-  }
-
-  componentWillUnmount() {
-    document.onkeydown = null;
-    document.querySelector('meta[name=viewport]')
-      .setAttribute('content', 'initial-scale=1.0,width=device-width');
-    document.body.classList.remove('overlay-active');
-    document.documentElement.classList.remove('html-noscroll');
-
-    window.scrollTo(0, this.scrollY);
-    window.onresize = null;
-
-    this.props.actions.reset();
-  }
-
-  setScale = (width) => {
-    this.dom.scale.innerHTML = `${((width / this.dom.image.naturalWidth) * 100).toFixed(2)}%`;
-  }
-
-  activate = () => {
-    this.dom.image.style.visibility = 'visible';
-
-    if (!this.loaded && this.dom.preview) {
-      this.dom.preview.style.visibility = 'visible';
-    }
-  }
-
-  hidePreview = () => {
-    this.loaded = true;
-
-    if (this.dom.preview) {
-      this.dom.preview.style.visibility = 'hidden';
-    }
-  }
-
-  apply = (params) => {
-    if (params.width && params.width !== this.current.width) {
-      this.setScale(params.width);
+  const apply = useCallback((params) => {
+    if (params.width && params.width !== current.current.width) {
+      setScale(params.width);
     }
 
-    Object.assign(this.current, params);
+    Object.assign(current.current, params);
 
-    if (!this.dom.image) return;
+    if (!image.current) return;
 
-    this.dom.image.style.transform = `translate3d(${this.current.left}px, ${this.current.top}px, 0) ` +
-      `scale3d(${this.current.scale}, ${this.current.scale}, 1)`;
+    image.current.style.transform = `translate3d(${current.current.left}px, ${current.current.top}px, 0) ` +
+      `scale3d(${current.current.scale}, ${current.current.scale}, 1)`;
 
-    if (!this.loaded && this.dom.preview) {
-      const scale = this.current.width / this.dom.preview.naturalWidth;
-      this.dom.preview.style.transform = `translate3d(${this.current.left}px, ${this.current.top}px, 0) ` +
-        `scale3d(${scale}, ${scale}, 1)`;
+    if (!loaded.current && preview.current) {
+      const scaleNow = current.current.width / preview.current.naturalWidth;
+      preview.current.style.transform = `translate3d(${current.current.left}px, ${current.current.top}px, 0) ` +
+        `scale3d(${scaleNow}, ${scaleNow}, 1)`;
     }
-  }
+  }, [setScale]);
 
-  prevImg = () => {
-    const { currentImg, history, galleryId, modal } = this.props;
+  useEffect(() => {
+    loaded.current = false;
+    loading.load(image.current, apply, actions.setInitialValues, activate, false);
+  }, [page, actions, activate, apply]);
 
-    if (currentImg !== 1) {
-      history.replace(`/${galleryId}/${currentImg - 1}`, { modal });
-    }
-  }
+  const nav = useRef({ prevImg, nextImg, close });
 
-  nextImg = () => {
-    const { currentImg, images, history, galleryId, modal } = this.props;
-
-    if (currentImg !== images.length) {
-      history.replace(`/${galleryId}/${currentImg + 1}`, { modal });
-    }
-  }
-
-  close = () => {
-    const { history, modal } = this.props;
-
-    if (modal) {
-      history.goBack();
-    } else {
-      history.push('/');
-    }
-  }
-
-  scaleModalClose = (e) => {
-    if (this.props.scaleModalVisible) {
+  const scaleModalClose = useCallback((e) => {
+    if (scaleModalVisible) {
       const path = utils.getEventPath(e);
       let found = false;
       for (let i = 0; i < path.length; i++) {
@@ -183,168 +264,150 @@ class ImageViewer extends Component {
       }
 
       if (!found) {
-        this.props.actions.closeScaleModal();
+        actions.closeScaleModal();
       }
     }
-  }
+  }, [scaleModalVisible, actions]);
 
-  render() {
-    const { galleryTitle, galleryId, images, currentImg, modal, initial, actions,
-      scaleByWidth, scaleModalVisible } = this.props;
+  const fullImgExt = images[page - 1].large.split('.').pop();
 
-    if (!currentImg) return null;
+  return (
+    <div // eslint-disable-line
+      className={classes.overlay}
+      onMouseMove={mouse.handleMouseMove(initial, current.current, apply)}
+      onMouseUp={mouse.handleMouseUp(image.current)}
+      onMouseLeave={mouse.handleMouseUp(image.current)}
+      onMouseDown={scaleModalClose}
+      onTouchEnd={scaleModalClose}
+    >
+      <div className={classes.topbar}>
+        <button className={classNames(classes.closeBtn, 'btn btn-link')} type="button" title="Назад" onClick={close}>
+          <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
+        </button>
 
-    const fullImgExt = images[currentImg - 1].large.split('.').pop();
+        <div className={classes.title}>
+          {galleryTitle},
+        </div>
 
-    return (
-      <div // eslint-disable-line
-        className={css.overlay}
-        onMouseMove={mouse.handleMouseMove(initial, this.current, this.apply)}
-        onMouseUp={mouse.handleMouseUp(this.dom.image)}
-        onMouseLeave={mouse.handleMouseUp(this.dom.image)}
-        onMouseDown={this.scaleModalClose}
-        onTouchEnd={this.scaleModalClose}
-      >
-        <div className={css.topbar}>
-          <button className={classes(css.closeBtn, 'btn btn-link')} type="button" title="Назад" onClick={this.close}>
-            <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
-          </button>
+        <div className={classes.pageNumber}>
+          &nbsp;{page} / {images.length}
+        </div>
 
-          <div className={css.title}>
-            {galleryTitle},
-          </div>
+        <button
+          type="button"
+          className={classNames(classes.zoomBtn, 'btn btn-link')}
+          onClick={() => { apply(loading.adjustByWidth(initial, current.current)); }}
+          title="Выровнять по ширине"
+        >
+          <span className="fa-stack fa-lg">
+            <i className="fa fa-square-o fa-stack-2x" />
+            <i className="fa fa-arrows-h fa-stack-1x" />
+          </span>
+        </button>
 
-          <div className={css.pageNumber}>
-            &nbsp;{currentImg} / {images.length}
-          </div>
+        <button
+          type="button"
+          className={classNames(classes.scale)}
+          ref={scale}
+          onClick={actions.openScaleModal}
+        />
 
+        <a
+          href={`/img/comics/${images[page - 1].large}`}
+          className={classNames(classes.downloadBtn, 'btn btn-link')}
+          title="Скачать в высоком разрешении"
+          download={`${galleryId}_${page}.${fullImgExt}`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          <i className="fa fa-download fa-lg" aria-hidden="true" />
+        </a>
+      </div>
+
+      <div className={classes.navigation}>
+        <div className={classes.navButtonContainer}>
+          {page !== 1 &&
+            <button
+              type="button"
+              onClick={prevImg}
+              className={classNames(classes.navButton, 'btn btn-link')}
+            >
+              <i className="fa fa-angle-left fa-3x" aria-hidden="true" />
+            </button>}
+        </div>
+        {' '}
+        <div className={classes.navButtonContainer}>
+          {page !== images.length &&
+            <button
+              type="button"
+              onClick={nextImg}
+              className={classNames(classes.navButton, 'btn btn-button')}
+            >
+              <i className="fa fa-angle-right fa-3x" aria-hidden="true" />
+            </button>}
+        </div>
+      </div>
+
+      <div className={classes.frame}>
+        <img
+          className={classes.previewimg}
+          alt={page}
+          key={`${page} preview`}
+          src={`/img/comics/${images[page - 1].small}`}
+          ref={preview}
+        />
+
+        <img
+          className={classes.fullimg}
+          alt={page}
+          key={`${page} full`}
+          src={`/img/comics/${images[page - 1].medium}`}
+          ref={image}
+          onLoad={hidePreview}
+          onWheel={mouse.handleWheel(initial, current.current, apply)}
+          onMouseDown={mouse.handleMouseDown(initial, current.current)}
+          onDoubleClick={mouse.handleDoubleClick(initial, current.current, apply)}
+          onTouchStart={touch.handleTouchStart(initial, current.current)}
+          onTouchMove={touch.handleTouchMove(initial, current.current, apply, nav, page, images.length)}
+          onTouchEnd={touch.handleTouchEnd(initial, current.current, apply)}
+        />
+      </div>
+
+      {scaleModalVisible &&
+        <div id="scalemodal" className={classes.byWidthModal}>
+          <h5>Масштабирование по-умолчанию</h5>
           <button
             type="button"
-            className={classes(css.zoomBtn, 'btn btn-link')}
-            onClick={() => { this.apply(loading.adjustByWidth(initial, this.current)); }}
-            title="Выровнять по ширине"
+            className={scaleByWidth ? 'btn btn-primary' : 'btn btn-success'}
+            onClick={() => {
+              actions.setDefaultScaleByWidth(false);
+              apply({
+                left: initial.box.left,
+                top: initial.box.top,
+                width: initial.width,
+                height: initial.height,
+                scale: initial.scale,
+              });
+              actions.closeScaleModal();
+            }}
           >
-            <span className="fa-stack fa-lg">
-              <i className="fa fa-square-o fa-stack-2x" />
-              <i className="fa fa-arrows-h fa-stack-1x" />
-            </span>
+            Вписать в окно
           </button>
-
           <button
-            className={classes(css.scale)}
-            ref={(el) => { this.dom.scale = el; }}
-            onClick={actions.openScaleModal}
-          />
-
-          <a
-            href={`/img/comics/${images[currentImg - 1].large}`}
-            className={classes(css.downloadBtn, 'btn btn-link')}
-            title="Скачать в высоком разрешении"
-            download={`${galleryId}_${currentImg}.${fullImgExt}`}
-            target="_blank"
-            rel="noopener noreferrer"
+            type="button"
+            className={scaleByWidth ? 'btn btn-success' : 'btn btn-primary'}
+            onClick={() => {
+              actions.setDefaultScaleByWidth(true);
+              apply(loading.adjustByWidth(initial, current.current));
+              actions.closeScaleModal();
+            }}
           >
-            <i className="fa fa-download fa-lg" aria-hidden="true" />
-          </a>
-        </div>
-
-        <div className={css.navigation}>
-          <div className={css.navButtonContainer}>
-            {currentImg !== 1 &&
-              <Link
-                replace
-                to={{
-                  pathname: `/${galleryId}/${currentImg - 1}`,
-                  state: { modal },
-                }}
-                className={classes(css.navButton, 'btn btn-link')}
-              >
-                <i className="fa fa-angle-left fa-3x" aria-hidden="true" />
-              </Link>
-            }
-          </div>
-          {' '}
-          <div className={css.navButtonContainer}>
-            {currentImg !== images.length &&
-              <Link
-                replace
-                to={{
-                  pathname: `/${galleryId}/${currentImg + 1}`,
-                  state: { modal },
-                }}
-                className={classes(css.navButton, 'btn btn-link')}
-              >
-                <i className="fa fa-angle-right fa-3x" aria-hidden="true" />
-              </Link>
-            }
-          </div>
-        </div>
-
-        <div className={css.frame}>
-          {modal &&
-            <img
-              className={css.previewimg}
-              alt={currentImg}
-              key={`${currentImg} preview`}
-              src={`/img/comics/${images[currentImg - 1].small}`}
-              ref={(el) => { this.dom.preview = el; }}
-            />
-          }
-
-          <img
-            className={css.fullimg}
-            alt={currentImg}
-            key={`${currentImg} full`}
-            src={`/img/comics/${images[currentImg - 1].medium}`}
-            ref={(el) => { this.dom.image = el; }}
-            onLoad={this.hidePreview}
-            onWheel={mouse.handleWheel(initial, this.current, this.apply)}
-            onMouseDown={mouse.handleMouseDown(initial, this.current)}
-            onDoubleClick={mouse.handleDoubleClick(initial, this.current, this.apply)}
-            onTouchStart={touch.handleTouchStart(initial, this.current)}
-            onTouchMove={touch.handleTouchMove(initial, this.current, this.apply, this.nav, currentImg, images.length)}
-            onTouchEnd={touch.handleTouchEnd(initial, this.current, this.apply)}
-          />
-        </div>
-
-        {scaleModalVisible &&
-          <div id="scalemodal" className={css.byWidthModal}>
-            <h5>Масштабирование по-умолчанию</h5>
-            <button
-              type="button"
-              className={scaleByWidth ? 'btn btn-primary' : 'btn btn-success'}
-              onClick={() => {
-                actions.setDefaultScaleByWidth(false);
-                this.apply({
-                  left: initial.box.left,
-                  top: initial.box.top,
-                  width: initial.width,
-                  height: initial.height,
-                  scale: initial.scale,
-                });
-                actions.closeScaleModal();
-              }}
-            >
-              Вписать в окно
-            </button>
-            <button
-              type="button"
-              className={scaleByWidth ? 'btn btn-success' : 'btn btn-primary'}
-              onClick={() => {
-                actions.setDefaultScaleByWidth(true);
-                this.apply(loading.adjustByWidth(initial, this.current));
-                actions.closeScaleModal();
-              }}
-            >
-              По ширине
-            </button>
-          </div>
-        }
-
-      </div>
-    );
-  }
-}
+            По ширине
+          </button>
+        </div>}
+    </div>
+  );
+};
 
 function mapStateToProps({ imageViewer }) {
   return { ...imageViewer };
@@ -357,9 +420,6 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
-  // props from obj
-  modal: PropTypes.bool.isRequired,
-  // props from hoc
   comics: PropTypes.shape({
     title: PropTypes.string.isRequired,
     date: PropTypes.string.isRequired,
@@ -367,27 +427,10 @@ ImageViewer.propTypes = {
     files: PropTypes.arrayOf(PropTypes.object).isRequired,
   }).isRequired,
   page: PropTypes.number.isRequired,
-  // props from react-router
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      page: PropTypes.string,
-    }).isRequired,
-  }).isRequired,
-  history: PropTypes.shape({
-    replace: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
-  }).isRequired,
   // props from duck
   galleryId: PropTypes.string.isRequired,
-  galleryTitle: PropTypes.string.isRequired,
   scaleByWidth: PropTypes.bool.isRequired,
   scaleModalVisible: PropTypes.bool.isRequired,
-  images: PropTypes.arrayOf(PropTypes.shape({
-    small: PropTypes.string.isRequired,
-    medium: PropTypes.string.isRequired,
-    large: PropTypes.string.isRequired,
-  }).isRequired).isRequired,
-  currentImg: PropTypes.number.isRequired,
   initial: PropTypes.shape({
     scale: PropTypes.number.isRequired,
     box: PropTypes.object.isRequired,
@@ -407,14 +450,9 @@ ImageViewer.propTypes = {
     openScaleModal: PropTypes.func.isRequired,
     closeScaleModal: PropTypes.func.isRequired,
   }).isRequired,
+  prevImg: PropTypes.func.isRequired,
+  nextImg: PropTypes.func.isRequired,
+  close: PropTypes.func.isRequired,
 };
 
-const expObj = {
-  standalone: props => <ProxyRoute modal={false} {...props} />,
-  modal: props => <ProxyRoute modal {...props} />,
-};
-
-expObj.standalone = connect(mapStateToProps, mapDispatchToProps)(withRouter(expObj.standalone));
-expObj.modal = connect(mapStateToProps, mapDispatchToProps)(withRouter(expObj.modal));
-
-export default expObj;
+export default connect(mapStateToProps, mapDispatchToProps)(ImageViewer);

@@ -5,15 +5,38 @@
         "node": true
     },
     "extends": "airbnb",
-    // "plugins": ["react"],
+    "plugins": ["react-hooks"],
     "rules": {
         "indent": ["error", 2, {"SwitchCase": 1}],
         "react/jsx-indent": ["error", 2],
-        "max-len": ["error", 125],
+        "max-len": ["error", 127],
         "import/no-extraneous-dependencies": 1,
         "no-plusplus": ["error", { "allowForLoopAfterthoughts": true }],
         "no-underscore-dangle": 0,
         "no-unused-vars": ["error", { "vars": "all", "args": "after-used", "ignoreRestSiblings": true }],
-        "prefer-template": 1
+        "prefer-template": 1,
+        "linebreak-style": 0,
+        "react/no-array-index-key": 1,
+        "jsx-a11y/anchor-is-valid": [ "error", {
+            "components": [ "Link" ],
+            "specialLink": [ "to" ]
+        }],
+        "implicit-arrow-linebreak": 0,
+        "react/jsx-one-expression-per-line": 0,
+        "react/destructuring-assignment": 0,
+        "jsx-a11y/label-has-associated-control": 0,
+        "jsx-a11y/label-has-for": 0,
+        "react/jsx-wrap-multilines": 0,
+        "operator-linebreak": 0,
+        "jsx-a11y/media-has-caption": 0,
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+        "react/jsx-fragments": 0,
+        "prefer-object-spread": 0,
+        "react/jsx-props-no-spreading": 0,
+        "no-param-reassign": ["error", { "props": true, "ignorePropertyModificationsFor": ["draft"] }],
+        "jsx-a11y/no-noninteractive-element-interactions": 0,
+        "jsx-a11y/control-has-associated-label": 0
     }
-}
+  }
+  
