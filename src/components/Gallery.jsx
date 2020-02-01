@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { createUseStyles } from 'react-jss';
+import { Link } from 'react-router-dom';
 
 const useStyles = createUseStyles({
   images: {
@@ -42,31 +43,30 @@ const useStyles = createUseStyles({
 });
 
 const Gallery = ({
-  images, title, id, setActive,
+  images, title, slug, location,
 }) => {
   const classes = useStyles();
-
-  const elemImages = images.map((files, i) => (
-    <div className={classes.imageContainer} key={files.small}>
-      <button
-        type="button"
-        onClick={() => {
-          setActive(id, i + 1);
-        }}
-        className={classes.imgButton}
-      >
-        <img className={classes.image} alt={`${title}, page ${i + 1}`} src={`/img/comics/${files.small}`} />
-      </button>
-    </div>
-  ));
 
   const layoutFix = new Array(10).fill(0).map((elem, i) => (
     <div key={`additional ${i + 1}`} className={classes.imageContainer} />
   ));
 
+  // fix this with grid
   return (
     <div className={classes.images}>
-      {elemImages}
+      {images.map((files, i) => (
+        <div className={classes.imageContainer} key={files.small}>
+          <Link
+            to={{
+              pathname: `/${slug}/${i + 1}`,
+              state: { background: location },
+            }}
+            className={classes.imgButton}
+          >
+            <img className={classes.image} alt={`${title}, page ${i + 1}`} src={`/img/comics/${files.small}`} />
+          </Link>
+        </div>
+      ))}
       {layoutFix}
     </div>
   );
@@ -75,8 +75,8 @@ const Gallery = ({
 Gallery.propTypes = {
   images: PropTypes.arrayOf(PropTypes.object).isRequired,
   title: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
-  setActive: PropTypes.func.isRequired,
+  slug: PropTypes.string.isRequired,
+  location: PropTypes.objectOf(PropTypes.any).isRequired,
 };
 
 export default Gallery;

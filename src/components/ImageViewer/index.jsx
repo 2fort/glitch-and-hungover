@@ -1,14 +1,14 @@
 import React, { useEffect, useRef, useCallback } from 'react';
 import PropTypes from 'prop-types';
+import { useParams, Link, useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import classNames from 'classnames';
 import { createUseStyles } from 'react-jss';
 import * as ownActions from './duck';
-import {
-  loading, mouse, touch,
-} from './modules';
+import { loading, mouse } from './modules';
 import * as utils from '../../lib/utils';
+import data from '../../json/data.json';
 
 const buttons = {
   color: '#FFF',
@@ -173,9 +173,11 @@ const useStyles = createUseStyles({
 });
 
 const ImageViewer = ({
-  comics, page, galleryId, scaleByWidth, scaleModalVisible, initial, actions, prevImg, nextImg, close,
+  scaleByWidth, scaleModalVisible, initial, actions,
 }) => {
   const classes = useStyles();
+  const { issue, page } = useParams();
+  const history = useHistory();
   const scrollY = useRef(window.scrollY);
   const image = useRef();
   const preview = useRef();
@@ -185,6 +187,7 @@ const ImageViewer = ({
   });
   const loaded = useRef(false);
 
+  const comics = data[issue];
   const images = comics.files;
   const galleryTitle = comics.title;
 
@@ -248,7 +251,7 @@ const ImageViewer = ({
     loading.load(image.current, apply, actions.setInitialValues, activate, false);
   }, [page, actions, activate, apply]);
 
-  const nav = useRef({ prevImg, nextImg, close });
+  // const nav = useRef({ prevImg, nextImg, close });
 
   const scaleModalClose = useCallback((e) => {
     if (scaleModalVisible) {
@@ -281,9 +284,9 @@ const ImageViewer = ({
       onTouchEnd={scaleModalClose}
     >
       <div className={classes.topbar}>
-        <button className={classNames(classes.closeBtn, 'btn btn-link')} type="button" title="Назад" onClick={close}>
+        <Link className={classNames(classes.closeBtn, 'btn btn-link')} title="Назад" to="/">
           <i className="fa fa-arrow-left fa-lg" aria-hidden="true" />
-        </button>
+        </Link>
 
         <div className={classes.title}>
           {galleryTitle},
@@ -316,7 +319,7 @@ const ImageViewer = ({
           href={`/img/comics/${images[page - 1].large}`}
           className={classNames(classes.downloadBtn, 'btn btn-link')}
           title="Скачать в высоком разрешении"
-          download={`${galleryId}_${page}.${fullImgExt}`}
+          download={`${comics.id}_${page}.${fullImgExt}`}
           target="_blank"
           rel="noopener noreferrer"
         >
@@ -329,7 +332,10 @@ const ImageViewer = ({
           {page !== 1 &&
             <button
               type="button"
-              onClick={prevImg}
+              onClick={() => {
+                if (+page === 1) return;
+                history.push(`/${issue}/${+page - 1}`);
+              }}
               className={classNames(classes.navButton, 'btn btn-link')}
             >
               <i className="fa fa-angle-left fa-3x" aria-hidden="true" />
@@ -340,7 +346,10 @@ const ImageViewer = ({
           {page !== images.length &&
             <button
               type="button"
-              onClick={nextImg}
+              onClick={() => {
+                if (+page === 4) return;
+                history.push(`/${issue}/${+page + 1}`);
+              }}
               className={classNames(classes.navButton, 'btn btn-button')}
             >
               <i className="fa fa-angle-right fa-3x" aria-hidden="true" />
@@ -367,9 +376,9 @@ const ImageViewer = ({
           onWheel={mouse.handleWheel(initial, current.current, apply)}
           onMouseDown={mouse.handleMouseDown(initial, current.current)}
           onDoubleClick={mouse.handleDoubleClick(initial, current.current, apply)}
-          onTouchStart={touch.handleTouchStart(initial, current.current)}
-          onTouchMove={touch.handleTouchMove(initial, current.current, apply, nav, page, images.length)}
-          onTouchEnd={touch.handleTouchEnd(initial, current.current, apply)}
+          // onTouchStart={touch.handleTouchStart(initial, current.current)}
+          // onTouchMove={touch.handleTouchMove(initial, current.current, apply, nav, page, images.length)}
+          // onTouchEnd={touch.handleTouchEnd(initial, current.current, apply)}
         />
       </div>
 
@@ -420,15 +429,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 ImageViewer.propTypes = {
-  comics: PropTypes.shape({
-    title: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
-    anchor: PropTypes.string.isRequired,
-    files: PropTypes.arrayOf(PropTypes.object).isRequired,
-  }).isRequired,
-  page: PropTypes.number.isRequired,
   // props from duck
-  galleryId: PropTypes.string.isRequired,
   scaleByWidth: PropTypes.bool.isRequired,
   scaleModalVisible: PropTypes.bool.isRequired,
   initial: PropTypes.shape({
@@ -450,9 +451,6 @@ ImageViewer.propTypes = {
     openScaleModal: PropTypes.func.isRequired,
     closeScaleModal: PropTypes.func.isRequired,
   }).isRequired,
-  prevImg: PropTypes.func.isRequired,
-  nextImg: PropTypes.func.isRequired,
-  close: PropTypes.func.isRequired,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ImageViewer);

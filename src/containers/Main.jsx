@@ -1,10 +1,10 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { createUseStyles } from 'react-jss';
+import { useLocation } from 'react-router-dom';
 import classNames from 'classnames';
 import data from '../json/data.json';
 import Gallery from '../components/Gallery';
-import ImageViewer from '../components/ImageViewer';
 
 const useStyles = createUseStyles({
   hr: {
@@ -54,29 +54,8 @@ const useStyles = createUseStyles({
 
 const Main = () => {
   const classes = useStyles();
+  const location = useLocation();
   const [year, setYear] = useState(2000);
-  const [activeGallery, setActiveGallery] = useState(null);
-  const [activePage, setActivePage] = useState(null);
-
-  const prevImg = useCallback(() => {
-    if (activePage === 1) return;
-    setActivePage(activePage - 1);
-  }, [activePage]);
-
-  const nextImg = useCallback(() => {
-    if (activePage === data[activeGallery].files.length) return;
-    setActivePage(activePage + 1);
-  }, [activePage, activeGallery]);
-
-  const close = useCallback(() => {
-    setActiveGallery(null);
-    setActivePage(null);
-  }, []);
-
-  const setActive = useCallback((galleryId, page) => {
-    setActiveGallery(galleryId);
-    setActivePage(page);
-  }, []);
 
   return (
     <div className="container">
@@ -118,18 +97,9 @@ const Main = () => {
               <p className={classes.date}>{elem.date}</p>
             </div>
             <hr className={classes.hr} />
-            <Gallery title={elem.title} id={elem.id} images={elem.files} setActive={setActive} />
+            <Gallery title={elem.title} slug={elem.anchor} images={elem.files} location={location} />
           </div>
         ))}
-
-        {activeGallery && activePage &&
-          <ImageViewer
-            comics={data[activeGallery]}
-            page={activePage}
-            prevImg={prevImg}
-            nextImg={nextImg}
-            close={close}
-          />}
       </div>
     </div>
   );
