@@ -7,8 +7,8 @@
   "scripts": {
     "start": "webpack-dev-server --mode development",
     "static": "NODE_PATH=. NODE_ENV=production nodemon staticServer.js",
-    "build": "cd build && ls | xargs rm -rf && cd .. && NODE_ENV=production webpack --mode production --config webpack.prod.config.js",
-    "build:server": "NODE_ENV=production BASE_URL=http://glitch-hungover.comiket.ru webpack --mode production --config webpack.prod.config.js",
+    "build": "rimraf build && cross-env NODE_ENV=production webpack --mode production --config webpack.prod.config.js",
+    "build:server": "rimraf build && cross-env NODE_ENV=production BASE_URL=https://glitch-hungover.surge.sh webpack --mode production --config webpack.prod.config.js",
     "lint": "eslint \"./tasks/**/*\" \"./src/**/*\"",
     "img:resize": "NODE_PATH=. node tasks/resizeImg.js"
   },
@@ -31,7 +31,6 @@
     "eslint-plugin-react": "^7.7.0",
     "file-loader": "^1.1.11",
     "html-webpack-plugin": "^3.0.6",
-    "inline-manifest-webpack-plugin": "^3.0.1",
     "prop-types": "^15.6.1",
     "raw-loader": "^0.5.1",
     "react": "^16.2.0",
@@ -43,13 +42,15 @@
     "redux": "^3.7.2",
     "typestyle": "^1.7.2",
     "url-loader": "^1.0.1",
-    "webpack": "^4.1.1",
-    "webpack-cli": "^2.0.12",
-    "webpack-dev-server": "^3.1.1"
+    "webpack": "4.1.1",
+    "webpack-cli": "2.0.12",
+    "webpack-dev-server": "3.1.1"
   },
   "devDependencies": {
+    "cross-env": "6",
     "express": "^4.16.3",
     "proxy-middleware": "^0.15.0",
+    "rimraf": "^3.0.2",
     "sharp": "^0.20.0",
     "shipit-deploy": "^2.5.1",
     "shipit-shared": "^4.4.2",
